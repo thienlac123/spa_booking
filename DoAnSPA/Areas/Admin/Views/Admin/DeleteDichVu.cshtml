@@ -1,0 +1,15 @@
+﻿@model DoAnSPA.Models.DichVu
+
+@{
+    ViewData["Title"] = "Xóa Dịch Vụ";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Xóa Dịch Vụ</h2>
+
+<h4>Bạn có chắc chắn muốn xóa dịch vụ: <strong>@Model.TenDichVu</strong>?</h4>
+
+<form asp-controller="Admin" asp-action="ServiceDeleteConfirmed" asp-route-id="@Model.DichVuId" method="post">
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-controller="Admin" asp-action="Service" class="btn btn-secondary">Hủy</a>
+</form>

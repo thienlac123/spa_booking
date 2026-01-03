@@ -1,0 +1,16 @@
+# Visual Studio / .NET
+.vs/
+**/bin/
+**/obj/
+
+# Secrets
+**/appsettings.Development.json
+**/*.env
+
+# Node / Hardhat
+node_modules/
+artifacts/
+cache/
+coverage/
+typechain/
+*.log

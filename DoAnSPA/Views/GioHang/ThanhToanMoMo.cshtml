@@ -1,0 +1,162 @@
+﻿@model DoAnSPA.Models.DonHang
+
+@{
+    ViewData["Title"] = "Thanh toán qua Ví MoMo";
+    string VND(decimal x) => x.ToString("#,0") + " đ";
+    bool isPaid = Model.TrangThai == "DaThanhToan";
+}
+
+<style>
+    .momo-color {
+        color: #d82d8b;
+    }
+
+    .bg-momo {
+        background-color: #d82d8b;
+        color: white;
+    }
+
+    .card-payment {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .qr-frame {
+        position: relative;
+        display: inline-block;
+        padding: 10px;
+        border: 2px dashed #d82d8b;
+        border-radius: 12px;
+        background: white;
+    }
+
+    .paid-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(2px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        z-index: 10;
+    }
+
+    .info-group {
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+
+        .info-group:last-child {
+            border-bottom: none;
+        }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-payment">
+                <div class="row g-0">
+                    <div class="col-md-7 p-5 text-center bg-light border-end">
+                        <h3 class="momo-color fw-bold mb-4">
+                            <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" style="height: 30px; margin-right: 8px; vertical-align: bottom;">
+                            Quét mã để thanh toán
+                        </h3>
+
+                        <div class="qr-frame mb-4">
+                            <img src="@Url.Action("MoMoQr", "GioHang", new { id = Model.DonHangId })"
+                                 alt="QR MoMo"
+                                 class="img-fluid"
+                                 style="width: 240px; height: 240px; border-radius: 8px;" />
+
+                            @if (isPaid)
+                            {
+                                <div class="paid-overlay animate__animated animate__fadeIn">
+                                    <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px; font-size: 30px;">
+                                        ✓
+                                    </div>
+                                    <h5 class="text-success fw-bold">Giao dịch thành công!</h5>
+                                </div>
+                            }
+                        </div>
+
+                        <p class="text-muted mb-0">
+                            Sử dụng App <strong>MoMo</strong> hoặc ứng dụng Camera hỗ trợ QR Code để quét mã.
+                        </p>
+
+                        @if (isPaid)
+                        {
+                            <div class="mt-4">
+                                <a asp-action="Index" class="btn btn-outline-success px-4 rounded-pill">
+                                    ← Quay về trang chủ
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-md-5 p-5 bg-white">
+                        <h4 class="fw-bold mb-4">Thông tin đơn hàng</h4>
+
+                        <div class="info-group">
+                            <label class="text-muted small">Nhà cung cấp</label>
+                            <div class="fw-bold">Hệ thống Spa Cao Cấp</div>
+                        </div>
+
+                        <div class="info-group">
+                            <label class="text-muted small">Mã đơn hàng</label>
+                            <div class="fw-bold fs-5 text-dark">#@Model.DonHangId</div>
+                        </div>
+
+                        <div class="info-group">
+                            <label class="text-muted small">Khách hàng</label>
+                            <div>@Model.TenNguoiNhan</div>
+                            <small class="text-muted">@Model.SoDienThoaiNhan</small>
+                        </div>
+
+                        <div class="info-group mt-3">
+                            <label class="text-muted small">Tổng số tiền thanh toán</label>
+                            <div class="fs-2 fw-bold momo-color">@VND(Model.TongTien)</div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-muted">Trạng thái:</span>
+                                @if (isPaid)
+                                {
+                                    <span class="badge bg-success rounded-pill px-3 py-2">Đã thanh toán</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Chờ thanh toán...</span>
+                                }
+                            </div>
+
+                            @* Nút giả lập (Chỉ hiện khi chưa thanh toán) *@
+                            @if (!isPaid)
+                            {
+                                <form asp-action="FakeMoMoPaid" method="post" class="mt-4">
+                                    <input type="hidden" name="id" value="@Model.DonHangId" />
+                                    <button type="submit" class="btn btn-secondary w-100 btn-sm">
+                                        🛠 (Demo) Giả lập đã thanh toán ngay
+                                    </button>
+                                </form>
+                                <div class="text-center mt-3">
+                                    <a asp-action="Index" class="text-decoration-none text-muted small">
+                                        ← Quay lại giỏ hàng
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

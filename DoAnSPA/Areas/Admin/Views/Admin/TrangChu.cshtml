@@ -1,0 +1,85 @@
+﻿@model DoAnSPA.Models.TrangChuViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Quản lý trang chủ";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<!-- Quản lý Dịch Vụ -->
+<h3>Quản lý Dịch Vụ</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên Dịch Vụ</th>
+            <th>Hình Ảnh</th>
+            <th>Hiển Thị Trang Chủ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dv in Model.DichVus)
+        {
+            <tr>
+                <td>@dv.TenDichVu</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(dv.HinhAnh))
+                    {
+                        <img src="@dv.HinhAnh" width="100" alt="Hình ảnh dịch vụ" />
+                    }
+                    else
+                    {
+                        <span>Không có hình</span>
+                    }
+                </td>
+                <td>
+                    <form method="post" asp-action="CapNhatHienThiDichVu" asp-controller="Admin">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@dv.DichVuId" />
+                        <input type="checkbox" name="hienThi" value="true" @(dv.HienThiTrangChu ? "checked" : "") onchange="this.form.submit()" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Quản lý Nhân Viên -->
+<h3>Quản lý Nhân Viên</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Họ Tên</th>
+            <th>Vị Trí</th>
+            <th>Ảnh</th>
+            <th>Hiển Thị Trang Chủ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nv in Model.NhanViens)
+        {
+            <tr>
+                <td>@nv.HoTen</td>
+                <td>@nv.ViTri</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(nv.AnhNhanVien))
+                    {
+                        <img src="@nv.AnhNhanVien" width="100" alt="Ảnh nhân viên" />
+                    }
+                    else
+                    {
+                        <span>Không có hình</span>
+                    }
+                </td>
+                <td>
+                    <form method="post" asp-action="CapNhatHienThiNhanVien" asp-controller="Admin">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@nv.Id" />
+                        <input type="checkbox" name="hienThi" value="true" @(nv.HienThiTrangChu ? "checked" : "") onchange="this.form.submit()" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,268 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Sparlex - Spa Website Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="~/css/style.css" rel="stylesheet">
+
+    @RenderSection("Styles", required: false)
+
+    <style>
+        /* Custom CSS for Active Navbar Link */
+        .navbar-nav .nav-item .nav-link {
+            color: #333; /* Màu chữ mặc định */
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative; /* Cho underline */
+            padding-bottom: 8px; /* Khoảng cách cho underline */
+        }
+
+            .navbar-nav .nav-item .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: 0;
+                left: 0;
+                background-color: #d85a7f; /* Màu hồng cho underline */
+                transition: width 0.3s ease;
+            }
+
+            .navbar-nav .nav-item .nav-link:hover,
+            .navbar-nav .nav-item .nav-link.active {
+                color: #d85a7f; /* Màu chữ hồng khi active hoặc hover */
+                font-weight: 700;
+            }
+
+                .navbar-nav .nav-item .nav-link.active::after,
+                .navbar-nav .nav-item .nav-link:hover::after {
+                    width: 100%; /* Kéo dài underline khi active hoặc hover */
+                }
+
+        /* Custom CSS for Footer (Giữ nguyên) */
+        .footer {
+            background: linear-gradient(to right, #ff8fab, #d85a7f); /* Gradient hồng cho nền footer */
+            color: white; /* Màu chữ mặc định trong footer là trắng */
+            padding-top: 5rem;
+            padding-bottom: 3rem;
+        }
+
+            .footer h4 {
+                color: white; /* Tiêu đề trong footer màu trắng */
+                margin-bottom: 1.5rem;
+                font-weight: bold;
+            }
+
+            .footer p, .footer span {
+                color: rgba(255, 255, 255, 0.8); /* Màu chữ phụ nhạt hơn một chút */
+                line-height: 1.8;
+                margin-bottom: 0.5rem;
+            }
+
+                .footer p i {
+                    color: white; /* Icon trong các dòng text màu trắng */
+                    margin-right: 0.5rem;
+                }
+
+            .footer a {
+                color: rgba(255, 255, 255, 0.8); /* Màu link mặc định */
+                text-decoration: none;
+                display: block; /* Mỗi link trên một dòng */
+                margin-bottom: 0.5rem;
+                transition: color 0.3s ease-in-out;
+            }
+
+                .footer a:hover {
+                    color: white; /* Link hover màu trắng sáng */
+                }
+
+                .footer a i {
+                    color: white; /* Icon trong link màu trắng */
+                    margin-right: 0.5rem;
+                }
+
+            .footer .social-icons a {
+                display: inline-flex; /* Chuyển thành inline-flex để căn giữa và xếp ngang */
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.2); /* Nền icon mờ */
+                color: white;
+                justify-content: center;
+                align-items: center;
+                margin-right: 0.75rem;
+                transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+            }
+
+                .footer .social-icons a:hover {
+                    background-color: white; /* Nền icon sáng khi hover */
+                    color: #d85a7f; /* Icon màu hồng khi hover */
+                }
+
+        /* Copyright section */
+        .copyright {
+            background-color: #a8818f; /* Màu hồng đậm hơn cho copyright */
+            padding: 1rem 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+            .copyright a {
+                color: white;
+                text-decoration: none;
+                font-weight: 600;
+                transition: color 0.3s ease-in-out;
+            }
+
+                .copyright a:hover {
+                    color: #ffc0d9; /* Màu hồng nhạt hơn khi hover */
+                }
+
+        /* Back to top button */
+        .back-to-top {
+            background-color: #d85a7f; /* Màu hồng cho nút back to top */
+            color: white;
+            border: none;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+            .back-to-top:hover {
+                background-color: #ff8fab; /* Màu hồng nhạt hơn khi hover */
+            }
+    </style>
+</head>
+
+<body>
+
+    <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+    </div>
+
+    <div class="container-fluid bg-light">
+        <div class="container px-0">
+            <nav class="navbar navbar-light navbar-expand-xl">
+                <a asp-controller="Home" asp-action="Index" class="navbar-brand">
+                    <img src="~/img/Ảnh chụp màn hình 2025-03-25 163149.png" alt="Logo" style="height: 60px;">
+                </a>
+
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+
+                <div class="collapse navbar-collapse bg-light py-3" id="navbarCollapse">
+                    @{
+                        // Lấy tên controller và action hiện tại
+                        var currentController = ViewContext.RouteData.Values["controller"] as string;
+                        var currentAction = ViewContext.RouteData.Values["action"] as string;
+                    }
+                    <div class="navbar-nav mx-auto border-top">
+                        <a asp-area="" asp-controller="Home" asp-action="Index"
+                           class="nav-item nav-link @((currentController == "Home" && currentAction == "Index") ? "active" : "")">Trang chủ</a>
+                        <a asp-area="" asp-controller="DichVu" asp-action="Index"
+                           class="nav-item nav-link @(currentController == "DichVu" ? "active" : "")">Dịch vụ</a>
+                        <a asp-area="" asp-controller="KhuyenMai" asp-action="Index"
+                           class="nav-item nav-link @(currentController == "KhuyenMai" ? "active" : "")">Khuyến mãi</a>
+                        <a asp-area="" asp-controller="LienHe" asp-action="Index"
+                           class="nav-item nav-link @(currentController == "LienHe" ? "active" : "")">Liên hệ tư vấn</a>
+                        <a asp-area="" asp-controller="SanPham" asp-action="Index"
+                           class="nav-item nav-link @(currentController == "SanPham" ? "active" : "")">Sản phẩm</a>
+                    </div>
+                    @* @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="dropdown ms-3">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
+                                <li><a class="dropdown-item" href="/LichHen/Dadat">📄 Lịch hẹn đã đặt</a></li>
+                            </ul>
+                        </div>
+                    } *@
+                    <partial name="_LoginPartial" />
+                </div>
+            </nav>
+        </div>
+    </div>
+    @if (TempData["AlertMsg"] is string msg)
+    {
+        var lv = (TempData["AlertLevel"] as string ?? "info");
+        <div class="container mt-3">
+            <div class="alert alert-@lv mb-0" role="alert">@Html.Raw(msg)</div>
+        </div>
+    }
+
+    @RenderBody()
+
+    <div class="container-fluid footer">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-3">
+                    <h4 class="mb-4">Giờ làm việc </h4>
+                    <p>Thứ Hai: <span style="font-weight: 600;">09:00 am – 10:00 pm</span></p>
+                    <p>Thứ Bảy: <span style="font-weight: 600;">09:00 am – 08:00 pm</span></p>
+                    <p>Chủ Nhật: <span style="font-weight: 600;">09:00 am – 05:00 pm</span></p>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <h4 class="mb-4">Theo dõi chúng tôi </h4>
+                    <div class="d-flex flex-column">
+                        <a href="https://www.facebook.com/profile.php?id=61556139515805"><i class="fas fa-angle-right"></i> Facebook</a>
+                        <a href="https://www.facebook.com/profile.php?id=61556139515805"><i class="fas fa-angle-right"></i> Instagram</a>
+                        <a href="https://www.facebook.com/profile.php?id=61556139515805"><i class="fas fa-angle-right"></i> Twitter</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <h4 class="mb-4">Liên hệ chúng tôi</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Đại học Hutech 475A, Điện Biên Phủ, phường 25, quận Bình Thạnh, TP.HCM</p>
+                    <p><i class="fas fa-envelope"></i> locnguyennn114@example.com</p>
+                    <p><i class="fas fa-phone"></i> (+84) 0853555443</p>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <h4 class="mb-4">Mạng xã hội</h4>
+                    <div class="d-flex align-items-center justify-content-start social-icons">
+                        <a href="#" class="btn btn-square rounded-circle me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="btn btn-square rounded-circle me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="btn btn-square rounded-circle me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="btn btn-square rounded-circle"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <a href="#" class="btn btn-primary btn-md-square rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/lightbox/js/lightbox.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <script src="~/js/main.js"></script>
+
+   
+    @RenderSection("Scripts", required: false)
+    @await Html.PartialAsync("_AiChatWidget")
+   
+</body>
+</html>

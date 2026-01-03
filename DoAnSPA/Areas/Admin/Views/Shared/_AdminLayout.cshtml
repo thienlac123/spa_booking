@@ -1,0 +1,397 @@
+﻿@{
+    Layout = null;
+
+    // Lấy controller, action, area hiện tại
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString()?.ToLower();
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Spa Booking Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FFB6C1; /* Light Pink */
+            --secondary-color: #FF69B4; /* Hot Pink (for accents/hover) */
+            --accent-color: #C71585; /* Medium Violet Red (for deeper accents) */
+            --dark-color: #4A4A4A; /* Darker grey for text */
+            --light-color: #FDF5E6; /* Old Lace - very light cream for background */
+            --text-color: #333333; /* Dark text for readability */
+            --success-color: #5cb85c;
+            --danger-color: #d9534f;
+            --warning-color: #f0ad4e;
+            --sidebar-width: 280px;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light-color); /* Creamy background */
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--accent-color) 100%); /* Pink gradient */
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 0;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Lighter border */
+            margin-bottom: 20px;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+            .sidebar-brand img {
+                height: 40px;
+                margin-right: 10px;
+            }
+
+        .sidebar-menu {
+            padding: 0 15px;
+        }
+
+            .sidebar-menu a {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                color: rgba(255, 255, 255, 0.9); /* Slightly more opaque */
+                padding: 12px 20px;
+                margin-bottom: 5px;
+                border-radius: 6px;
+                font-size: 15px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+                .sidebar-menu a i {
+                    margin-right: 12px;
+                    font-size: 18px;
+                    width: 24px;
+                    text-align: center;
+                }
+
+                .sidebar-menu a:hover {
+                    background-color: rgba(255, 255, 255, 0.2); /* Lighter hover */
+                    color: white;
+                    transform: translateX(5px);
+                }
+
+                .sidebar-menu a.active {
+                    background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%); /* Pink gradient for active */
+                    color: white;
+                    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.4); /* Pink shadow */
+                }
+
+        /* Navbar */
+        .navbar {
+            height: var(--navbar-height);
+            background-color: white;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            left: var(--sidebar-width);
+            right: 0;
+            z-index: 900;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .user-greeting {
+            margin-right: 15px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .logout-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+            .logout-btn i {
+                margin-right: 8px;
+            }
+
+            .logout-btn:hover {
+                background-color: #c9302c; /* Slightly darker red on hover */
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(217, 83, 79, 0.3);
+            }
+
+        /* Main content */
+        .content {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            padding-top: calc(var(--navbar-height) + 30px);
+            min-height: 100vh;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .content-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        /* Card styling */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: white; /* Ensure card background is white */
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Button styling */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--secondary-color);
+                border-color: var(--secondary-color);
+            }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+            color: white;
+        }
+
+
+        /* Table styling */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+            .table thead th {
+                background-color: #fcf1f3; /* Light pinkish header */
+                border-bottom: 2px solid #f9dae0; /* Slightly darker pinkish border */
+                font-weight: 600;
+                color: var(--dark-color);
+            }
+
+            .table tbody tr:hover {
+                background-color: rgba(255, 182, 193, 0.1); /* Very light pink on hover */
+            }
+
+        /* Responsive adjustments */
+        @@media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+                .sidebar.active {
+                    transform: translateX(0);
+                }
+
+            .navbar {
+                left: 0;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block !important;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            cursor: pointer;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a asp-controller="Home" asp-action="Index" class="sidebar-brand">
+                <img src="~/img/Ảnh chụp màn hình 2025-03-25 163149.png" alt="Logo">
+                <span>SpaBooking</span>
+            </a>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="/admin/trangchu" class="@(currentController == "admin" && currentAction == "trangchu" ? "active" : "")">
+                <i class="bi bi-house-door"></i>
+                <span>Trang Chủ</span>
+            </a>
+            <a href="/admin/service" class="@(currentController == "admin" && currentAction == "service" ? "active" : "")">
+                <i class="bi bi-scissors"></i>
+                <span>Dịch Vụ</span>
+            </a>
+            <a href="/admin/combo" class="@(currentController == "admin" && currentAction == "combo" ? "active" : "")">
+                <i class="bi bi-collection"></i>
+                <span>Combo</span>
+            </a>
+            <a href="/admin/sanpham" class="@(currentController == "admin" && currentAction == "sanpham" ? "active" : "")">
+                <i class="bi bi-collection"></i>
+                <span>Sản phẩm</span>
+            </a>
+
+            <a href="/admin/staff" class="@(currentController == "admin" && currentAction == "staff" ? "active" : "")">
+                <i class="bi bi-people"></i>
+                <span>Nhân Viên</span>
+            </a>
+            <a href="/admin/lichhen" class="@(currentController == "admin" && currentAction == "lichhen" ? "active" : "")">
+                <i class="bi bi-calendar-check"></i>
+                <span>Lịch Hẹn</span>
+            </a>
+            <a href="/admin/donhang" class="@(currentController == "admin" && currentAction == "DonHang" ? "active" : "")">
+                <i class="bi bi-calendar-check"></i>
+                <span>Đơn hàng</span>
+            </a>
+            <div class="submenu-items">
+                <a href="/admin/lichhen/lichtheogio" class="@(currentAction == "lichtheogio" ? "active" : "")">Lịch Theo Giờ</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        <span class="navbar-brand"></span>
+        <div class="navbar-user">
+            <span class="user-greeting">Xin chào, Admin</span>
+            <a href="/Identity/Account/Logout" class="logout-btn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Đăng xuất</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="content">
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("Scripts", false)
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+
+            if(menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    document.querySelector('.sidebar').classList.toggle('active');
+                });
+            }
+
+            // Highlight active menu item
+            const currentPath = window.location.pathname.toLowerCase();
+            const menuItems = document.querySelectorAll('.sidebar-menu a');
+
+            menuItems.forEach(item => {
+                const itemPath = item.getAttribute('href').toLowerCase();
+                // Check if the current path starts with the item path (for sub-pages)
+                // and ensure it's not just the root admin path if it's not 'trangchu'
+                if (currentPath.startsWith(itemPath) && itemPath !== '/admin/trangchu') {
+                    item.classList.add('active');
+                } else if (currentPath === '/admin/trangchu' && itemPath === '/admin/trangchu') {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

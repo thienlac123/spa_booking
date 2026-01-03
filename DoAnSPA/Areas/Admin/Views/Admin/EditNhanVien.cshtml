@@ -1,0 +1,66 @@
+﻿@model DoAnSPA.Models.NhanVien
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Chỉnh Sửa Nhân Viên";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-area="Admin" asp-controller="Admin" asp-action="EditStaff" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label>Họ tên</label>
+        <input asp-for="HoTen" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Quê quán</label>
+        <input asp-for="QueQuan" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Số điện thoại</label>
+        <input asp-for="SoDienThoai" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Vị trí</label>
+        <input asp-for="ViTri" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Ảnh nhân viên</label>
+        <input type="file" name="anhFile" class="form-control" />
+        @if (!string.IsNullOrEmpty(Model.AnhNhanVien))
+        {
+            <img src="@Model.AnhNhanVien" alt="Ảnh nhân viên" width="100" height="100" class="mt-2 rounded-circle" />
+        }
+    </div>
+
+    <div class="mb-3">
+        <label>Facebook</label>
+        <input asp-for="Facebook" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Instagram</label>
+        <input asp-for="Instagram" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Twitter</label>
+        <input asp-for="Twitter" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>LinkedIn</label>
+        <input asp-for="LinkedIn" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+    <a asp-area="Admin" asp-controller="Admin" asp-action="Staff" class="btn btn-secondary ms-2">Hủy</a>
+</form>

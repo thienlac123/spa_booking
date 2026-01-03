@@ -1,0 +1,63 @@
+﻿@model DoAnSPA.Models.SanPham
+@{
+    ViewData["Title"] = "Xóa sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-3 text-danger">Xóa sản phẩm</h2>
+<h5 class="mb-4">Bạn có chắc chắn muốn xóa sản phẩm này không? Hành động này không thể hoàn tác.</h5>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.TenSanPham)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.TenSanPham)
+            </dd>
+
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Gia)
+            </dt>
+            <dd class="col-sm-9">
+                @string.Format("{0:N0} VNĐ", Model.Gia)
+            </dd>
+
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.MoTa)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.MoTa)
+            </dd>
+
+            <dt class="col-sm-3">
+                Ảnh sản phẩm
+            </dt>
+            <dd class="col-sm-9">
+                @if (!string.IsNullOrEmpty(Model.HinhAnhUrl))
+                {
+                    <img src="@Model.HinhAnhUrl" style="max-width: 200px; border-radius: 5px;" />
+                }
+                else
+                {
+                    <span>Không có ảnh</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">
+                Trạng thái
+            </dt>
+            <dd class="col-sm-9">
+                @(Model.IsActive ? "Đang bán" : "Ngừng bán")
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="SanPhamDeleteConfirmed" asp-route-id="@Model.SanPhamId" method="post">
+    <input type="hidden" asp-for="SanPhamId" />
+
+    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+    <a asp-action="SanPham" class="btn btn-secondary">Huỷ</a>
+</form>

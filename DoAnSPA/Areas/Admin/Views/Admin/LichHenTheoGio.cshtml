@@ -1,0 +1,112 @@
+﻿@model List<DoAnSPA.Models.LichHen>
+
+@{
+    ViewData["Title"] = "Lịch hẹn theo giờ";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var thuTrongTuan = new[] { "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật" };
+    int weekOffset = ViewBag.WeekOffset ?? 0;
+    DateTime startOfWeek = ViewBag.StartOfWeek;
+    DateTime endOfWeek = ViewBag.EndOfWeek;
+}
+
+<style>
+    .calendar-table td {
+        min-width: 150px;
+        height: 100px;
+        vertical-align: top;
+        padding: 6px;
+        font-size: 13px;
+    }
+
+    .calendar-table th {
+        text-align: center;
+        background-color: #f8f9fa;
+    }
+
+    .status-DaXacNhan {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .status-ChoXacNhan {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+    }
+
+    .status-HoanThanh {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+    }
+
+    .status-DaHuy {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+
+    .booking-item {
+        padding: 4px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a class="btn btn-outline-primary" href="?weekOffset=@(weekOffset - 1)">⟵ Tuần trước</a>
+    <h4 class="text-center my-auto">
+        Tuần từ @startOfWeek.ToString("dd/MM") đến @endOfWeek.ToString("dd/MM")
+    </h4>
+    <a class="btn btn-outline-primary" href="?weekOffset=@(weekOffset + 1)">Tuần sau ⟶</a>
+</div>
+
+<table class="table table-bordered calendar-table">
+    <thead>
+        <tr>
+            <th>Giờ</th>
+            @for (int i = 0; i < 7; i++)
+            {
+                <th>
+                    @thuTrongTuan[i]<br />
+                    <small>@startOfWeek.AddDays(i).ToString("dd/MM")</small>
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (int hour = 7; hour <= 21; hour++)
+        {
+            <tr>
+                <td><strong>@hour:00</strong></td>
+                @for (int day = 0; day < 7; day++)
+                {
+                    var date = startOfWeek.AddDays(day).Date;
+                    var bookings = Model
+                    .Where(l => l.ngayHen.Date == date && l.gioHen.Hours == hour)
+                    .ToList();
+
+                    if (bookings.Any())
+                    {
+                        <td>
+                            @foreach (var item in bookings)
+                            {
+                                <div class="booking-item status-@item.trangThai">
+                                    <strong>@item.TenNguoiDat</strong><br />
+                                    <em>@item.DichVu?.TenDichVu</em><br />
+                                    <small>@item.SoDienThoai</small>
+                                </div>
+                            }
+                        </td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                }
+            </tr>
+        }
+    </tbody>
+</table>

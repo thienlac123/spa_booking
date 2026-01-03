@@ -1,0 +1,116 @@
+﻿@model IEnumerable<DoAnSPA.Models.ComboDichVu>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Quản Lý Khuyến Mãi";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<h4>Thêm Combo Mới</h4>
+<form asp-controller="Admin" asp-action="AddCombo" method="post">
+    <div class="mb-3">
+        <label class="form-label">Tên Combo</label>
+        <input type="text" name="TenCombo" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Tổng Giá Gốc</label>
+        <input type="text" id="GiaGoc" class="form-control" readonly value="0 VNĐ" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Giá Khuyến Mãi</label>
+        <input type="number" name="GiaKhuyenMai" class="form-control" step="0.01" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Chọn Dịch Vụ</label>
+        <div>
+            @foreach (var dv in ViewBag.AvailableDichVus as List<DoAnSPA.Models.DichVu>)
+            {
+                <div class="form-check">
+                    <input class="form-check-input dichvu-checkbox" type="checkbox" name="SelectedDichVuIds[]" value="@dv.DichVuId" data-gia="@dv.Gia" id="dv_@dv.DichVuId" />
+                    <label class="form-check-label" for="dv_@dv.DichVuId">@dv.TenDichVu - @dv.Gia.ToString("N0") VNĐ</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Thêm Combo</button>
+</form>
+
+<hr />
+
+<h4>Danh Sách Combo</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên Combo</th>
+            <th>Dịch Vụ Bao Gồm</th>
+            <th>Giá Khuyến Mãi</th>
+            <th>Giảm Giá (%)</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var combo in Model)
+        {
+            var giaGoc = combo.DichVus.Sum(dv => dv.Gia);
+            var giamGia = giaGoc > 0 ? (1 - combo.GiaKhuyenMai / giaGoc) * 100 : 0;
+
+            <tr>
+                <td>@combo.TenCombo</td>
+                <td>
+                    <ul>
+                        @foreach (var dv in combo.DichVus)
+                        {
+                            <li>@dv.TenDichVu - @dv.Gia.ToString("N0") VNĐ</li>
+                        }
+                    </ul>
+                </td>
+                <td>@combo.GiaKhuyenMai.ToString("N0") VNĐ</td>
+                <td>@giamGia.ToString("0.##")%</td>
+                <td>
+                    <form asp-controller="Admin" asp-action="DeleteCombo" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa combo này không?');" style="display:inline;">
+                        <input type="hidden" name="ComboDichVuId" value="@combo.ComboDichVuId" />
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let checkboxes = document.querySelectorAll(".dichvu-checkbox");
+            let giaGocInput = document.getElementById("GiaGoc");
+
+            function tinhTongGia() {
+                let total = 0;
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        total += parseFloat(cb.getAttribute("data-gia")) || 0;
+                    }
+                });
+                giaGocInput.value = total.toLocaleString('vi-VN') + " VNĐ";
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener("change", tinhTongGia);
+            });
+
+            // Tính tổng giá ban đầu nếu checkbox nào được check sẵn (nếu có)
+            tinhTongGia();
+        });
+    </script>
+}

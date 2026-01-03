@@ -1,0 +1,160 @@
+﻿@model DoAnSPA.Models.DonHang
+
+@{
+    ViewData["Title"] = "Kết quả giao dịch VNPAY";
+    // Hàm format tiền
+    string VND(decimal x) => x.ToString("#,0") + " đ";
+
+    // Kiểm tra trạng thái thành công
+    bool isSuccess = Model?.TrangThai == "DaThanhToan";
+
+    // Màu sắc chủ đạo theo trạng thái
+    string statusColor = isSuccess ? "success" : "danger";
+    string iconClass = isSuccess ? "bi-check-circle-fill" : "bi-x-circle-fill";
+    string titleText = isSuccess ? "Thanh toán thành công!" : "Thanh toán thất bại";
+}
+
+<style>
+    .result-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .result-header {
+        padding: 40px 20px;
+        text-align: center;
+        background: #f8f9fa;
+    }
+
+    .result-icon {
+        font-size: 80px;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+    /* Hiệu ứng nảy icon */
+    .animate-bounce {
+        animation: bounceIn 0.8s ease;
+    }
+   
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px dashed #eee;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .label-text {
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .value-text {
+        font-weight: 600;
+        color: #212529;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card result-card">
+
+                <div class="result-header">
+                    <img src="https://sandbox.vnpayment.vn/paymentv2/images/logo-vnpay@2x.png"
+                         alt="VNPAY" style="height: 24px; margin-bottom: 20px; opacity: 0.8;">
+
+                    <div class="result-icon text-@statusColor animate-bounce">
+                        @if (isSuccess)
+                        {
+                            <span>✓</span>
+                            @* Nếu bạn có Bootstrap Icons thì dùng thẻ này: <i class="bi bi-check-circle-fill"></i> *@
+                        }
+                        else
+                        {
+                            <span>✕</span>
+                            @* <i class="bi bi-x-circle-fill"></i> *@
+                        }
+                    </div>
+
+                    <h3 class="fw-bold text-@statusColor">@titleText</h3>
+                    <p class="text-muted px-4">
+                        @ViewBag.Message
+                    </p>
+                </div>
+
+                <div class="card-body p-4 bg-white">
+                    @if (Model != null)
+                    {
+                        <div class="mb-4">
+                            <div class="info-row">
+                                <span class="label-text">Mã đơn hàng</span>
+                                <span class="value-text">#@Model.DonHangId</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="label-text">Số tiền</span>
+                                <span class="value-text fs-5 text-primary">@VND(Model.TongTien)</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="label-text">Thời gian</span>
+                                <span class="value-text">@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="label-text">Cổng thanh toán</span>
+                                <span class="value-text">VNPAY QR</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span class="label-text">Mã giao dịch</span>
+                                <span class="value-text small text-muted">@Model.VnPayTxnRef</span>
+                            </div>
+
+                            @if (!isSuccess)
+                            {
+                                <div class="info-row bg-light rounded px-2 mt-2">
+                                    <span class="label-text text-danger">Mã lỗi</span>
+                                    <span class="value-text text-danger">@Model.VnPayResponseCode</span>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="d-grid gap-2">
+                        @if (isSuccess)
+                        {
+                            <a asp-controller="GioHang" asp-action="DonHangCuaToi" class="btn btn-primary py-2 rounded-pill fw-bold">
+                                Xem lịch sử đơn hàng
+                            </a>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary py-2 rounded-pill">
+                                Về trang chủ
+                            </a>
+                        }
+                        else
+                        {
+                            // Nếu thất bại: Cho phép thử lại thanh toán
+                            <a asp-controller="GioHang" asp-action="Index" class="btn btn-danger py-2 rounded-pill fw-bold">
+                                ↻ Thử thanh toán lại
+                            </a>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary py-2 rounded-pill">
+                                Về trang chủ
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">Hệ thống thanh toán được bảo mật bởi VNPAY</small>
+            </div>
+        </div>
+    </div>
+</div>

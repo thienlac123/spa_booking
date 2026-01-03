@@ -1,0 +1,39 @@
+﻿@model DoAnSPA.Models.DichVu
+
+@{
+    ViewData["Title"] = "Chỉnh Sửa Dịch Vụ";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Chỉnh Sửa Dịch Vụ</h2>
+
+<form asp-controller="Admin" asp-action="ServiceEdit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="DichVuId" />
+
+    <div class="form-group">
+        <label asp-for="TenDichVu"></label>
+        <input asp-for="TenDichVu" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MoTa"></label>
+        <textarea asp-for="MoTa" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Gia"></label>
+        <input asp-for="Gia" type="number" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Hình Ảnh</label>
+        <input type="file" name="ImageFile" class="form-control" />
+        @if (!string.IsNullOrEmpty(Model.HinhAnh))
+        {
+            <img src="@Model.HinhAnh" alt="Hình ảnh dịch vụ" width="100" height="100" />
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-controller="Admin" asp-action="Service" class="btn btn-secondary">Hủy</a>
+</form>

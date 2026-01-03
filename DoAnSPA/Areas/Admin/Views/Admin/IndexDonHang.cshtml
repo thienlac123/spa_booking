@@ -1,0 +1,60 @@
+﻿@model IEnumerable<DoAnSPA.Models.DonHang>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    string VND(decimal x) => x.ToString("#,0") + " đ";
+    string TrangThaiText(string s) => s switch
+    {
+        "ChuanBi" => "Spa đang chuẩn bị hàng",
+        "DangGiao" => "Đang giao",
+        "DaGiao" => "Đã giao",
+        "Huy" => "Đã hủy",
+        _ => s
+    };
+}
+
+<h2 class="mb-3">Quản lý đơn hàng</h2>
+
+@if (TempData["Success"] is string sMsg)
+{
+    <div class="alert alert-success">@sMsg</div>
+}
+
+<table class="table table-bordered align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Mã đơn</th>
+            <th>Khách hàng</th>
+            <th>Người nhận</th>
+            <th>Địa chỉ</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Cập nhật</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var o in Model)
+    {
+        <tr>
+            <td>#@o.DonHangId</td>
+            <td>@o.Customer.UserName</td>
+            <td>@o.TenNguoiNhan<br /><small>@o.SoDienThoaiNhan</small></td>
+            <td>@o.DiaChiNhan</td>
+            <td>@VND(o.TongTien)</td>
+            <td>@TrangThaiText(o.TrangThai)</td>
+            <td>
+                <form asp-action="CapNhatTrangThaiDonHang" method="post" class="d-flex gap-1">
+                    <input type="hidden" name="id" value="@o.DonHangId" />
+                        <select name="trangThai" class="form-select form-select-sm">
+                            <option value="ChuanBi" selected="@(o.TrangThai == "ChuanBi")">Chuẩn bị</option>
+                            <option value="DangGiao" selected="@(o.TrangThai == "DangGiao")">Đang giao</option>
+                            <option value="DaGiao" selected="@(o.TrangThai == "DaGiao")">Đã giao</option>
+                            <option value="Huy" selected="@(o.TrangThai == "Huy")">Hủy</option>
+                        </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Lưu</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

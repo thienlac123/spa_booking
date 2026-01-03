@@ -1,0 +1,321 @@
+﻿@model IEnumerable<DoAnSPA.Models.LichHen>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+
+
+    ViewData["Title"] = "Quản lý Lịch hẹn (Blockchain)";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var comboLookup = ViewBag.ComboLookup as IDictionary<int, dynamic>;
+
+    var thongKe = ViewBag.ThongKeTrangThai as Dictionary<string, int> ?? new();
+    int ChoXacNhanCount = thongKe.ContainsKey("ChoXacNhan") ? thongKe["ChoXacNhan"] : 0;
+    int DaCocCount = thongKe.ContainsKey("DaCoc") ? thongKe["DaCoc"] : 0;
+    int HoanThanhCount = thongKe.ContainsKey("HoanThanh") ? thongKe["HoanThanh"] : 0;
+    int DaHuyCount = thongKe.ContainsKey("DaHuy") ? thongKe["DaHuy"] : 0;
+    int DaPhatCount = thongKe.ContainsKey("DaPhat") ? thongKe["DaPhat"] : 0;
+
+    var hashes = ViewBag.BookingHashes as Dictionary<int, string> ?? new(); // lichHenId -> 64 hex
+}
+
+<form method="get" asp-action="Index" asp-controller="LichHen" asp-area="Admin"
+      class="mb-4 p-3 bg-white rounded shadow-sm d-flex align-items-center gap-3 flex-wrap border">
+    <div class="d-flex align-items-center gap-2">
+        <label class="fw-bold mb-0">📅 Từ:</label>
+        <input type="date" name="ngayBatDau" class="form-control" style="width:150px;" value="@ViewBag.NgayBatDau" />
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <label class="fw-bold mb-0">Đến:</label>
+        <input type="date" name="ngayKetThuc" class="form-control" style="width:150px;" value="@ViewBag.NgayKetThuc" />
+    </div>
+    <select name="status" class="form-select" style="width:180px;">
+        <option value="">-- Tất cả --</option>
+        <option value="DaCoc">💰 Đã Cọc</option>
+        <option value="HoanThanh">✅ Hoàn Thành</option>
+        <option value="DaHuy">❌ Đã Hủy</option>
+        <option value="DaPhat">🚫 Đã Phạt</option>
+    </select>
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-filter"></i> Lọc
+    </button>
+</form>
+
+<div class="row mb-4 g-3">
+    <div class="col-md-3">
+        <div class="card bg-light border-secondary h-100">
+            <div class="card-header bg-secondary text-white fw-bold">Chờ xác nhận</div>
+            <div class="card-body"><h5>@ChoXacNhanCount</h5></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning h-100 text-dark">
+            <div class="card-header fw-bold">💰 Đã Cọc (Web3)</div>
+            <div class="card-body"><h5>@DaCocCount</h5></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success h-100 text-white">
+            <div class="card-header fw-bold">Hoàn thành</div>
+            <div class="card-body"><h5>@HoanThanhCount</h5></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger h-100 text-white">
+            <div class="card-header fw-bold">Hủy / Phạt</div>
+            <div class="card-body"><h5>@(DaHuyCount + DaPhatCount)</h5></div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["AlertMsg"] is string msg && !string.IsNullOrWhiteSpace(msg))
+{
+    var lvl = TempData["AlertLevel"] as string ?? "info";
+    var cls = lvl switch
+    {
+        "success" => "alert-success",
+        "danger" => "alert-danger",
+        "warning" => "alert-warning",
+        _ => "alert-info"
+    };
+    <div class="alert @cls">@msg</div>
+}
+
+<div class="card shadow">
+    <div class="card-body p-0">
+        <table class="table table-bordered table-hover align-middle mb-0">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>ID</th>
+                   <th class="text-start">Dịch vụ / Combo</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày Hẹn</th>
+                    <th>Trạng thái</th>
+                    <th style="width:220px;">Thao tác Web3</th>
+                   
+                </tr>
+            </thead>
+            @{
+                string VND(decimal? x)
+                => (x ?? 0) > 0
+                ? (x ?? 0).ToString("#,0", new System.Globalization.CultureInfo("vi-VN")) + "đ"
+                : "";
+            }
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    string bId = hashes.TryGetValue(item.lichHenId, out var v) ? v : (item.BlockchainId ?? "");
+                    <tr>
+                        <td class="text-center fw-bold">@item.lichHenId</td>
+
+                        <!-- Dịch vụ / Combo -->
+                        <td class="text-start">
+                            @* ========== LỊCH COMBO ========== *@
+                            @if (item.comboId.HasValue)
+                            {
+                                dynamic comboInfo = null;
+                                bool hasCombo = comboLookup != null &&
+                                comboLookup.TryGetValue(item.comboId.Value, out comboInfo);
+
+                                string tenCombo = hasCombo
+                                ? (string)comboInfo.TenCombo
+                                : $"Combo #{item.comboId}";
+
+                                decimal? giaCombo = hasCombo
+                                ? (decimal?)comboInfo.GiaKhuyenMai
+                                : null;
+
+                                <span class="fw-bold">@tenCombo</span>
+
+                                @if (giaCombo.HasValue && giaCombo.Value > 0)
+                                {
+                                    <div class="text-muted" style="font-size:0.85rem;">
+                                        @giaCombo.Value.ToString("#,0") đ
+                                    </div>
+                                }
+                            }
+                            @* ========== LỊCH DỊCH VỤ THƯỜNG ========== *@
+                            else if (item.dichVuId.HasValue)
+                            {
+                                var tenDv = item.DichVu?.TenDichVu ?? $"Dịch vụ #{item.dichVuId}";
+                                decimal? giaDv = item.DichVu?.Gia;
+
+                                <span class="fw-bold">@tenDv</span>
+
+                                @if (giaDv.HasValue && giaDv.Value > 0)
+                                {
+                                    <div class="text-muted" style="font-size:0.85rem;">
+                                        @giaDv.Value.ToString("#,0") đ
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <em class="text-muted" style="font-size:0.85rem;">(Không xác định)</em>
+                            }
+                        </td>
+
+
+                        <td>
+                            <strong>@item.TenNguoiDat</strong><br />
+                            <small class="text-muted">@item.SoDienThoai</small>
+                        </td>
+
+                        <td class="text-center">
+                            @item.ngayHen.ToString("dd/MM/yyyy")<br />
+                            <span class="badge bg-light text-dark border">
+                                @item.gioHen.ToString(@"hh\:mm")
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            @switch (item.trangThai)
+                            {
+                                case "DaCoc":
+                                    <span class="badge bg-warning text-dark">💰 Đã Cọc</span>
+                                    break;
+                                case "HoanThanh":
+                                    <span class="badge bg-success">✅ Hoàn Thành</span>
+                                    break;
+                                case "DaHuy":
+                                    <span class="badge bg-secondary">❌ Đã Hủy</span>
+                                    break;
+                                case "DaPhat":
+                                    <span class="badge bg-dark">🚫 Đã Phạt</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-info text-dark">@item.trangThai</span>
+                                    break;
+                            }
+                        </td>
+
+                        <td class="text-center">
+                            @if (item.trangThai == "DaCoc" && !string.IsNullOrEmpty(bId))
+                            {
+                                <div class="d-flex flex-column gap-2 p-1">
+                                    <button class="btn btn-success btn-sm fw-bold"
+                                            onclick="confirmService('@bId', @item.lichHenId)">
+                                        ✅ Xác nhận &amp; Lấy tiền
+                                    </button>
+
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-dark"
+                                                onclick="claimNoShow('@bId', @item.lichHenId)"
+                                                title="Khách bùng">
+                                            🚫 Phạt
+                                        </button>
+                                        <button class="btn btn-outline-danger"
+                                                onclick="cancelBySpa('@bId', @item.lichHenId)"
+                                                title="Spa hủy">
+                                            ⚠️ Hủy
+                                        </button>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(bId) && bId.Length >= 8)
+                                    {
+                                        <small class="text-muted">ID: @bId[..8]…</small>
+                                    }
+                                </div>
+                            }
+                            else if (!string.IsNullOrEmpty(item.TransactionHash))
+                            {
+                                <span class="text-success small">
+                                    <i class="fas fa-check-double"></i> Xong on-chain
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">Chưa tạo cọc Web3</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js"></script>
+    <script>
+        function normalizeId(hex64) {
+            let h = (hex64 || "").trim();
+            if (!h) throw new Error("Missing booking id");
+            if (!h.startsWith("0x")) h = "0x" + h;
+            if (h.length !== 66) throw new Error("BookingId phải là 32 bytes (64 hex).");
+            return h;
+        }
+
+        async function getContract() {
+            if (!window.ethereum) {
+                alert('Cần cài MetaMask trên trình duyệt Admin.');
+                throw new Error("No MetaMask");
+            }
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = await provider.getSigner();
+
+            const addrRes = await fetch('/js/blockchain/localhost.json');
+            const addrJson = await addrRes.json();
+            const abiRes = await fetch('/js/blockchain/BookingEscrow.json');
+            const abiJson = await abiRes.json();
+
+            return new ethers.Contract(addrJson.BookingEscrow, abiJson.abi, signer);
+        }
+
+        async function notifyServer(dbId, statusStr, txHash) {
+            const r = await fetch('/Admin/LichHen/MarkOnchain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: dbId, status: statusStr, tx: txHash })
+            });
+            if (r.ok) {
+                alert("Cập nhật thành công!"); location.reload();
+            } else {
+                alert("Lỗi server khi lưu trạng thái.");
+            }
+        }
+
+        async function confirmService(bId, dbId) {
+            if (!confirm("Xác nhận dịch vụ xong? Tiền sẽ về ví Spa.")) return;
+            try {
+                const c  = await getContract();
+                const id = normalizeId(bId);
+                const tx = await c.confirmService(id);
+                alert("Đang xử lý trên Blockchain...");
+                const receipt = await tx.wait();
+                await notifyServer(dbId, 'Released', receipt.hash);
+            } catch (e) { handleError(e); }
+        }
+
+        async function claimNoShow(bId, dbId) {
+            if (!confirm("Khách bùng? Phạt cọc?")) return;
+            try {
+                const c  = await getContract();
+                const id = normalizeId(bId);
+                const tx = await c.claimNoShow(id);
+                alert("Đang xử lý trên Blockchain...");
+                const receipt = await tx.wait();
+                await notifyServer(dbId, 'Claimed', receipt.hash);
+            } catch (e) { handleError(e); }
+        }
+
+        async function cancelBySpa(bId, dbId) {
+            if (!confirm("Hủy lịch? Tiền hoàn về Khách.")) return;
+            try {
+                const c  = await getContract();
+                const id = normalizeId(bId);
+                const tx = await c.cancelBySpa(id);
+                alert("Đang xử lý trên Blockchain...");
+                const receipt = await tx.wait();
+                await notifyServer(dbId, 'Refunded', receipt.hash);
+            } catch (e) { handleError(e); }
+        }
+
+        function handleError(e) {
+            console.error(e);
+            const msg = e?.reason || e?.data?.message || e?.message || "Lỗi không xác định";
+            alert("Lỗi từ Blockchain: " + msg);
+        }
+    </script>
+}

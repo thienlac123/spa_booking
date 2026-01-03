@@ -1,0 +1,222 @@
+﻿@model DoAnSPA.Models.LichHen
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Đặt lịch combo thành công";
+
+    // 1. Tính toán thời gian
+    var thoiGianHen = Model.ngayHen.Date.Add(Model.gioHen);
+    var cancelDeadline = thoiGianHen.AddHours(-2);
+
+    // 2. Phân quyền & Trạng thái
+    bool isAdmin = User.IsInRole("Admin") || User.IsInRole("SpaOwner");
+    bool canBlockchainCancel = Model.trangThai == "DaCoc" && !string.IsNullOrEmpty(Model.BlockchainId);
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">Đặt Combo Thành Công!</h3>
+                    <p class="text-muted">Mã lịch hẹn: <span class="fw-bold text-dark">#@Model.lichHenId</span></p>
+                </div>
+
+                <div class="card-body px-4 px-md-5 pb-4">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="small text-muted text-uppercase fw-bold">Gói Combo</label>
+                                <div class="fs-5 text-primary fw-bold">
+                                    <i class="fas fa-gift me-2"></i>@Model.ComboDichVu?.TenCombo
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(Model.TenNguoiDat))
+                            {
+                                <div class="mb-3">
+                                    <label class="small text-muted text-uppercase fw-bold">Khách hàng</label>
+                                    <div>
+                                        <i class="fas fa-user-circle text-secondary me-2"></i>@Model.TenNguoiDat
+                                    </div>
+                                    <div class="mt-1">
+                                        <i class="fas fa-phone-alt text-secondary me-2"></i>@Model.SoDienThoai
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="small text-muted text-uppercase fw-bold">Thời gian hẹn</label>
+                                <div class="fs-5">
+                                    <i class="far fa-calendar-alt text-secondary me-2"></i>@Model.ngayHen.ToString("dd/MM/yyyy")
+                                </div>
+                                <div class="mt-1">
+                                    <i class="far fa-clock text-secondary me-2"></i>@Model.gioHen
+                                </div>
+                            </div>
+                            <div>
+                                <label class="small text-muted text-uppercase fw-bold">Trạng thái</label>
+                                <div>
+                                    <span class="badge rounded-pill bg-primary px-3 py-2">
+                                        @Model.trangThai
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                   
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <a asp-controller="LichHen" asp-action="DaDat" class="btn btn-primary rounded-pill px-4">
+                            📅 Xem lịch đã đặt
+                        </a>
+                        <a asp-controller="KhuyenMai" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                            🎁 Xem thêm Combo
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-link text-decoration-none text-muted">
+                            Về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            @if (canBlockchainCancel)
+            {
+                <div class="card border-warning border-2 shadow-sm rounded-4 bg-light bg-opacity-50 mt-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <i class="fab fa-ethereum text-warning fa-2x"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="mb-0 fw-bold text-dark">Quản lý đặt cọc (Blockchain)</h5>
+                                <small class="text-muted">Giao dịch an toàn qua Smart Contract</small>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-3 border mb-3">
+                            <div class="d-flex justify-content-between flex-wrap">
+                                <span class="text-muted small">Hạn hủy hoàn cọc:</span>
+                                <span class="fw-bold text-danger">Trước @cancelDeadline.ToString("HH:mm dd/MM/yyyy")</span>
+                            </div>
+                            @if (isAdmin)
+                            {
+                                <div class="border-top mt-2 pt-2">
+                                    <div class="small text-muted mb-1">Contract ID (Admin View):</div>
+                                    <code class="text-break">@Model.BlockchainId</code>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="text-center">
+                            <button class="btn btn-outline-danger rounded-pill px-4 fw-bold hover-shadow" onclick="cancelByClient()">
+                                <i class="fas fa-undo-alt me-2"></i>Hủy lịch & Hoàn tiền cọc
+                            </button>
+                            <div class="small text-muted mt-2 fst-italic">
+                                * Yêu cầu xác nhận qua ví MetaMask
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(Model.TransactionHash))
+            {
+                <div class="alert alert-success d-flex align-items-center shadow-sm rounded-3 mt-4" role="alert">
+                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                    <div>
+                        <div class="fw-bold">Giao dịch Blockchain hoàn tất</div>
+                        <div class="small text-break text-muted">Tx Hash: @Model.TransactionHash</div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js"></script>
+    <script>
+        // --- LOGIC XỬ LÝ BLOCKCHAIN (GIỮ NGUYÊN) ---
+        const bookingHex = '@Model.BlockchainId';
+        const lichHenId = @Model.lichHenId;
+
+        async function getContract() {
+            if (!window.ethereum) {
+                alert('Cần cài MetaMask để thao tác hủy & hoàn cọc.');
+                throw new Error('No MetaMask');
+            }
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = await provider.getSigner();
+
+            const addrRes = await fetch('/js/blockchain/localhost.json');
+            const addrJson = await addrRes.json();
+            const contractAddress = addrJson.BookingEscrow;
+            const abiRes = await fetch('/js/blockchain/BookingEscrow.json');
+            const abiJson = await abiRes.json();
+
+            return new ethers.Contract(contractAddress, abiJson.abi, signer);
+        }
+
+        function toBytes32(hex) {
+            if (!hex) return "0x" + "0".repeat(64);
+            return hex.startsWith("0x") ? hex : "0x" + hex;
+        }
+
+        async function notifyServerAfterCancel(txHash) {
+            const res = await fetch('/LichHen/MarkClientCancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: lichHenId,
+                    status: 'Refunded',
+                    tx: txHash
+                })
+            });
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error("Lỗi server: " + txt);
+            }
+        }
+
+        async function cancelByClient() {
+            if (!bookingHex) {
+                alert("Lịch hẹn này chưa có ID trên Blockchain nên không thể hủy qua MetaMask.");
+                return;
+            }
+            if (!confirm("Bạn chắc chắn muốn hủy lịch Combo này và nhận lại tiền cọc?")) return;
+
+            try {
+                const c = await getContract();
+                // Gọi Smart Contract
+                const tx = await c.cancelByClient(toBytes32(bookingHex));
+
+                alert("Đang gửi giao dịch hủy lên Blockchain, vui lòng đợi...");
+                const receipt = await tx.wait();
+
+                // Cập nhật Server
+                await notifyServerAfterCancel(receipt.hash);
+
+                alert("Hủy lịch & hoàn cọc thành công! Vui lòng kiểm tra số dư ví MetaMask.");
+                window.location.href = '/LichHen/DaDat';
+            } catch (e) {
+                console.error(e);
+                let msg = e?.reason || e?.message || e;
+                if (msg.includes("bad status")) {
+                    alert("Lịch này đã được xử lý trên Blockchain (bad status). Có thể đã hủy/hoàn trước đó.");
+                } else if (msg.includes("too late")) {
+                    alert("Đã quá hạn hủy cọc (dưới 2 tiếng).");
+                } else {
+                    alert("Lỗi khi hủy: " + msg);
+                }
+            }
+        }
+    </script>
+}

@@ -1,0 +1,14 @@
+﻿@model DoAnSPA.Models.DichVu
+
+@{
+    ViewData["Title"] = "Thêm Dịch Vụ";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Thêm Dịch Vụ</h2>
+
+<form asp-controller="Admin" asp-action="ServiceCreate" method="post" enctype="multipart/form-data">
+    @Html.Partial("_DichVuFormPartial", Model)
+    <button type="submit" class="btn btn-success">Thêm</button>
+    <a asp-controller="Admin" asp-action="Service" class="btn btn-secondary">Hủy</a>
+</form>

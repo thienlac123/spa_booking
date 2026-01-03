@@ -1,0 +1,249 @@
+﻿@model DoAnSPA.Models.LichHenViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Đặt lịch dịch vụ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var priceVnd = ViewBag.PriceVnd as string ?? "0";
+    var priceEth = ViewBag.PriceEth as string ?? "0.00000000";
+    var spaAddress = ViewBag.SpaAddress as string ?? "";
+    var blockchainId = ViewBag.BlockchainId as string ?? "";   // 64 hex (không 0x)
+    long cancelBefore = ViewBag.CancelBefore ?? 0L;
+    long graceUntil = ViewBag.GraceUntil ?? 0L;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow border-0 rounded-3">
+
+                <!-- HEADER -->
+                <div class="card-header bg-white border-0 pb-0">
+                    <h3 class="fw-bold mb-1 text-dark">
+                        Đặt lịch dịch vụ
+                    </h3>
+                    <p class="text-muted mb-0">
+                        Vui lòng kiểm tra kỹ thông tin trước khi thanh toán tiền cọc qua MetaMask.
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <!-- THÔNG BÁO -->
+                    @if (TempData["AlertMsg"] is string msg && !string.IsNullOrWhiteSpace(msg))
+                    {
+                        var lvl = TempData["AlertLevel"] as string ?? "info";
+                        var cls = lvl switch
+                        {
+                            "success" => "alert-success",
+                            "danger" => "alert-danger",
+                            "warning" => "alert-warning",
+                            _ => "alert-info"
+                        };
+                        <div class="alert @cls mb-3">@msg</div>
+                    }
+
+                    <form id="bookingForm" asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- HIDDEN FIELD DÙNG CHO SERVER + BLOCKCHAIN -->
+                        <input asp-for="DichVuId" type="hidden" />
+                        <input asp-for="TransactionHash" type="hidden" id="TransactionHash" />
+                        <input asp-for="BlockchainId" type="hidden" id="BlockchainId" value="@blockchainId" />
+                        <input asp-for="CancelBefore" type="hidden" value="@cancelBefore" />
+                        <input asp-for="GraceUntil" type="hidden" value="@graceUntil" />
+
+                        <!-- TÓM TẮT DỊCH VỤ -->
+                        <div class="mb-4 p-3 rounded-3 bg-light">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                                <div>
+                                    <div class="text-uppercase small text-muted">Dịch vụ</div>
+                                    <div class="fw-bold fs-5 text-primary">
+                                        @Model.TenDichVu
+                                    </div>
+                                </div>
+                                <div class="text-md-end">
+                                    <div class="small text-muted">Tiền cọc</div>
+                                    <div class="fw-bold text-danger fs-5">
+                                        @priceVnd đ
+                                        <span class="small text-muted">(~ @priceEth ETH)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- THÔNG TIN LỊCH HẸN -->
+                        <h5 class="fw-bold mb-3">Thông tin lịch hẹn</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="NgayHen" class="form-label fw-semibold">Ngày hẹn</label>
+                                <input asp-for="NgayHen" type="date" class="form-control" required />
+                                <span asp-validation-for="NgayHen" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="GioHen" class="form-label fw-semibold">Giờ hẹn</label>
+                                <input asp-for="GioHen" type="time" class="form-control" required />
+                                <span asp-validation-for="GioHen" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="NhanVienId" class="form-label fw-semibold">Chọn nhân viên</label>
+                                <select asp-for="NhanVienId"
+                                        asp-items="Model.NhanViens"
+                                        class="form-select">
+                                    <option value="">-- Vui lòng chọn --</option>
+                                </select>
+                                <span asp-validation-for="NhanVienId" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- THÔNG TIN KHÁCH HÀNG -->
+                        <h5 class="fw-bold mt-4 mb-3">Thông tin khách hàng</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TenNguoiDat" class="form-label fw-semibold">Tên người đặt</label>
+                                <input asp-for="TenNguoiDat" class="form-control" required />
+                                <span asp-validation-for="TenNguoiDat" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SoDienThoai" class="form-label fw-semibold">Số điện thoại</label>
+                                <input asp-for="SoDienThoai" class="form-control" required />
+                                <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="GhiChu" class="form-label fw-semibold">
+                                Ghi chú cho Spa (không bắt buộc)
+                            </label>
+                            <textarea asp-for="GhiChu" class="form-control" rows="3"
+                                      placeholder="Ví dụ: Dị ứng với tinh dầu nào, yêu cầu kỹ thuật viên nữ,…"></textarea>
+                            <span asp-validation-for="GhiChu" class="text-danger small"></span>
+                        </div>
+
+                        <!-- KHUNG THANH TOÁN CỌC -->
+                        <h5 class="fw-bold mb-3">Tiền cọc qua MetaMask</h5>
+                        <div class="mb-4 p-3 border rounded-3 bg-light">
+
+                            <p class="mb-1">
+                                Số tiền cọc: <strong>@priceVnd đ</strong>
+                                <span class="text-muted">(~ @priceEth ETH)</span>
+                            </p>
+
+                            <ul class="small text-muted mb-3">
+                                <li><strong>Hủy trước giờ hẹn 2 giờ</strong>: được hoàn lại <strong>100% tiền cọc</strong>.</li>
+                                <li><strong>Hủy trễ hơn 2 giờ hoặc không đến</strong>: Spa có quyền <strong>giữ tiền cọc</strong>.</li>
+                            </ul>
+
+                            <button type="button"
+                                    class="btn btn-warning fw-semibold px-4"
+                                    onclick="processDeposit()">
+                                💳 Thanh toán cọc bằng MetaMask
+                            </button>
+
+                            <span id="payStatus"
+                                  class="ms-2 text-success fw-semibold"
+                                  style="display:none;">
+                                ✅ Đã thanh toán, bấm “Lưu lịch hẹn” để hoàn tất.
+                            </span>
+
+                            <p class="small text-muted mt-2 mb-0">
+                                * Hệ thống chỉ lưu lịch khi bạn nhấn “Lưu lịch hẹn” sau khi MetaMask báo thành công.
+                            </p>
+                        </div>
+
+                        <!-- NÚT HÀNH ĐỘNG -->
+                        <div class="d-flex justify-content-between">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                                ⬅ Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                💾 Lưu lịch hẹn
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js"></script>
+    <script>
+        const priceEth     = "@priceEth";
+        const spaAddress   = "@spaAddress";
+        const rawBookingId = "@blockchainId";      // 64 hex, KHÔNG 0x
+        const cancelBefore = @cancelBefore;
+        const graceUntil   = @graceUntil;
+
+        function normalizeId(hex64) {
+            let h = (hex64 || "").trim();
+            if (!h) throw new Error("Missing booking id");
+            if (!h.startsWith("0x")) h = "0x" + h;
+            if (h.length !== 66) throw new Error("BookingId phải là 32 bytes (64 hex).");
+            return h;
+        }
+
+        // Kiểm tra form trước khi bật MetaMask
+        function processDeposit() {
+            const form = document.getElementById("bookingForm");
+            if (!form.checkValidity()) {
+                form.reportValidity();  // hiện message HTML5
+                return;
+            }
+            payDeposit();
+        }
+
+        async function getContract() {
+            if (!window.ethereum) {
+                alert("Vui lòng cài MetaMask để thanh toán cọc.");
+                throw new Error("No MetaMask");
+            }
+
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = await provider.getSigner();
+
+            const addrRes = await fetch('/js/blockchain/localhost.json');
+            const addrJson = await addrRes.json();
+
+            const abiRes = await fetch('/js/blockchain/BookingEscrow.json');
+            const abiJson = await abiRes.json();
+
+            return new ethers.Contract(addrJson.BookingEscrow, abiJson.abi, signer);
+        }
+
+        async function payDeposit() {
+            try {
+                const contract   = await getContract();
+                const idBytes32  = normalizeId(rawBookingId);
+                const valueWei   = ethers.parseEther(priceEth);
+
+                const tx = await contract.createBooking(
+                    idBytes32,
+                    spaAddress,
+                    cancelBefore,
+                    graceUntil,
+                    { value: valueWei }
+                );
+
+                alert("Đang chờ Blockchain xác nhận giao dịch...");
+                const receipt = await tx.wait();
+
+                // Lưu hash + id vào input ẩn để POST về server
+                document.getElementById("TransactionHash").value = receipt.hash;
+                document.getElementById("BlockchainId").value    = rawBookingId;
+
+                document.getElementById("payStatus").style.display = "inline";
+            } catch (e) {
+                console.error(e);
+                const msg = e?.reason || e?.message || "Lỗi không xác định";
+                alert("Lỗi thanh toán cọc: " + msg);
+            }
+        }
+    </script>
+}

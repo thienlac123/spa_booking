@@ -1,0 +1,232 @@
+﻿@model DoAnSPA.Models.ViewModels.DatLichComboViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Đặt lịch khuyến mãi";
+
+    // ép kiểu an toàn
+    decimal priceVnd = ViewBag.PriceVnd ?? 0m;
+    string priceEth = ViewBag.PriceEth ?? "0";
+
+    bool isAdmin = User.IsInRole("Admin") || User.IsInRole("SpaOwner");
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-pink text-white text-center py-4" style="background:#ff6fa5;">
+                    <h3 class="mb-1 fw-bold">
+                        🎁 Combo khuyến mãi: @Model.TenCombo
+                    </h3>
+                    <div class="mt-2">
+                        <span class="fw-bold">Giá khuyến mãi:</span>
+                        <span class="h4 text-warning">
+                            @priceVnd.ToString("#,0", new System.Globalization.CultureInfo("vi-VN")) đ
+                        </span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-light text-danger">
+                            Cọc 50%: @ViewBag.DepositVnd VND (≈ @ViewBag.DepositEth ETH)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+
+                    @* Các dịch vụ trong combo *@
+                    @if (Model.TenDichVus != null && Model.TenDichVus.Any())
+                    {
+                        <div class="mb-4">
+                            <h5 class="fw-bold"><i class="fas fa-list-ul me-2"></i>Bao gồm dịch vụ:</h5>
+                            <ul class="mb-0 text-muted">
+                                @foreach (var tenDv in Model.TenDichVus)
+                                {
+                                    <li>@tenDv</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <form id="comboForm" asp-action="XacNhanDatLichKhuyenMai" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ComboDichVuId" />
+                        <input type="hidden" id="TransactionHash" name="TransactionHash" />
+                        <input type="hidden" id="BlockchainId" name="BlockchainId" value="@ViewBag.BlockchainId" />
+
+                        <h5 class="fw-bold mb-3">Thông tin đặt lịch</h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="NgayHen" class="form-label fw-semibold">Ngày hẹn</label>
+                                <input asp-for="NgayHen" type="date" class="form-control" required />
+                                <span asp-validation-for="NgayHen" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="GioHen" class="form-label fw-semibold">Giờ hẹn</label>
+                                <input asp-for="GioHen" type="time" class="form-control" required />
+                                <span asp-validation-for="GioHen" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="NhanVienId" class="form-label fw-semibold">
+                                    Chọn nhân viên (tuỳ chọn)
+                                </label>
+                                <select asp-for="NhanVienId" asp-items="Model.NhanViens" class="form-select">
+                                    <option value="">-- Không chọn --</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="TenNguoiDat" class="form-label fw-semibold">Tên người đặt</label>
+                                <input asp-for="TenNguoiDat" class="form-control" required />
+                                <span asp-validation-for="TenNguoiDat" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SoDienThoai" class="form-label fw-semibold">Số điện thoại</label>
+                                <input asp-for="SoDienThoai" class="form-control" type="tel" required />
+                                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="GhiChu" class="form-label fw-semibold">Ghi chú cho Spa</label>
+                                <textarea asp-for="GhiChu" class="form-control" rows="3"
+                                          placeholder="Ví dụ: dị ứng tinh dầu nào, yêu cầu kỹ thuật viên nữ,..."></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h5 class="fw-bold mb-3">Tiền cọc qua MetaMask</h5>
+                        <div class="alert alert-warning small">
+                            <div class="mb-1">
+                                Khi đặt combo, bạn sẽ cọc <strong>50%</strong> giá trị liệu trình qua MetaMask.
+                                Bạn có thể huỷ lịch trước <strong>2 giờ</strong> so với giờ hẹn để được hoàn lại tiền cọc.
+                            </div>
+                           
+
+                            @* Mã booking on-chain: chỉ admin / spa owner thấy *@
+                            @if (isAdmin && ViewBag.BlockchainId != null)
+                            {
+                                <div class="mt-1 text-muted text-break">
+                                    Mã booking on-chain (chỉ admin thấy): @ViewBag.BlockchainId
+                                </div>
+                            }
+
+                            <div class="mt-2 text-danger">
+                                * Sau khi MetaMask báo thành công, hệ thống sẽ lưu mã giao dịch.
+                                Vui lòng bấm “Lưu lịch hẹn” để hoàn tất.
+                            </div>
+                        </div>
+
+                        <div id="depositStatus" class="alert d-none" role="alert"></div>
+
+                        <div class="mb-3">
+                            <strong>Số tiền cọc:</strong> @ViewBag.DepositVnd VND (~ @ViewBag.DepositEth ETH)
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="button"
+                                    class="btn btn-pink btn-lg rounded-pill text-white"
+                                    style="background:#ff6fa5;"
+                                    onclick="processComboBooking()">
+                                <i class="fas fa-wallet me-2"></i>
+                                Đặt cọc 50% &amp; Hoàn tất (MetaMask)
+                            </button>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                ⬅ Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Lưu lịch hẹn
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Hàm bấm nút cọc
+        async function processComboBooking() {
+            const form = document.getElementById("comboForm");
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            try {
+                await payComboDeposit();
+            } catch (e) {
+                console.error(e);
+                alert("Thanh toán thất bại hoặc bị hủy!");
+            }
+        }
+
+        async function payComboDeposit() {
+            if (!window.ethereum) {
+                alert("Vui lòng cài MetaMask để đặt cọc!");
+                return;
+            }
+
+            const statusBox = document.getElementById("depositStatus");
+            statusBox.classList.add("d-none");
+
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = await provider.getSigner();
+
+            const blockchainId = "@ViewBag.BlockchainId";
+            const spaAddress   = "@ViewBag.SpaAddress";
+            const amountEthStr = "@ViewBag.DepositEth";
+            const cancelBefore = BigInt(@ViewBag.CancelBefore);
+            const graceUntil   = BigInt(@ViewBag.GraceUntil);
+
+            const addrResp = await fetch('/js/blockchain/localhost.json');
+            const addrJson = await addrResp.json();
+            const abiResp  = await fetch('/js/blockchain/BookingEscrow.json');
+            const abiJson  = await abiResp.json();
+
+            const contract = new ethers.Contract(addrJson.BookingEscrow, abiJson.abi, signer);
+            const value    = ethers.parseEther(amountEthStr);
+
+            console.log("Sending tx createBooking...");
+            const tx = await contract.createBooking(
+                blockchainId,
+                spaAddress,
+                cancelBefore,
+                graceUntil,
+                { value }
+            );
+
+            alert("Đang xử lý trên Blockchain...");
+            const receipt = await tx.wait();
+            console.log("Success:", receipt.hash);
+
+            // Gắn hash vào hidden để submit lại
+            document.getElementById("TransactionHash").value = receipt.hash;
+
+            // ✅ Hiện text “cọc thành công”
+            statusBox.className = "alert alert-success mt-3";
+            statusBox.textContent =
+                "✅ Đã đặt cọc thành công. Mã giao dịch: " +
+                receipt.hash.substring(0, 12) + "... " +
+                "Vui lòng bấm nút 'Lưu lịch hẹn' để hoàn tất.";
+        }
+    </script>
+}

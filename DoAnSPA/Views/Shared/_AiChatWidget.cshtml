@@ -1,0 +1,498 @@
+﻿@using System.Security.Claims
+@{
+    // Mỗi user đăng nhập có 1 history riêng; khách chưa login = "guest"
+    var userId = User?.Identity?.IsAuthenticated == true
+        ? User.FindFirstValue(ClaimTypes.NameIdentifier)
+        : "guest";
+}
+
+<div id="ai-chat-widget-container">
+    <div id="ai-chat-toggle">
+        <span>💬</span>
+        <div class="toggle-ripple"></div>
+    </div>
+
+    <div id="ai-chat-box">
+        <div id="ai-chat-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="header-avatar">🌸</div>
+                <div>
+                    <span style="display: block; font-weight: 700;">Trợ lý Spa</span>
+                    <span style="font-size: 11px; opacity: 0.9;">🟢 Đang online</span>
+                </div>
+            </div>
+            <button id="ai-chat-close">✕</button>
+        </div>
+
+        <div id="ai-chat-messages">
+            <div class="ai-msg bot">Xin chào! Em có thể giúp gì cho anh/chị ạ?</div>
+        </div>
+
+        <div id="ai-chat-actions">
+            <a href="/dichvu/index" class="ai-action-btn">
+                💆‍♀️ Dịch vụ
+            </a>
+            <a href="/KhuyenMai" class="ai-action-btn">
+                🏷️ Khuyến mãi
+            </a>
+            <a href="/SanPham" class="ai-action-btn">
+                🧴 Sản phẩm
+            </a>
+        </div>
+
+        <div id="ai-chat-input-area">
+            <input id="ai-chat-input" type="text" placeholder="Nhập câu hỏi..." />
+            <button id="ai-chat-send">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Biến màu sắc */
+    :root {
+        --primary-color: #ff6f91; /* Hồng Spa */
+        --primary-hover: #ff8fa9;
+        --bg-color: #ffffff;
+        --msg-bg-bot: #f0f2f5;
+        --msg-bg-user: #ff6f91;
+        --text-user: #ffffff;
+        --text-bot: #333333;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Container chính */
+    #ai-chat-widget-container {
+        position: fixed;
+        right: 25px;
+        bottom: 25px;
+        z-index: 9999;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    /* Nút tròn mở chat */
+    #ai-chat-toggle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 111, 145, 0.5);
+        color: #fff;
+        font-size: 28px;
+        position: relative;
+        transition: transform 0.3s;
+    }
+
+        #ai-chat-toggle:hover {
+            transform: scale(1.1);
+        }
+
+    /* Hiệu ứng gợn sóng cho nút mở */
+    .toggle-ripple {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid var(--primary-color);
+        opacity: 0;
+        animation: ripple 2s infinite;
+        z-index: -1;
+    }
+
+    keyframes ripple {
+        0%
+
+    {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+
+    }
+
+    /* Khung chat chính */
+    #ai-chat-box {
+        width: 360px;
+        height: 520px;
+        background: var(--bg-color);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        display: none; /* Mặc định ẩn */
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 15px; /* Cách nút toggle một chút */
+        border: 1px solid rgba(0,0,0,0.05);
+        animation: slideUp 0.3s ease-out forwards;
+        transform-origin: bottom right;
+    }
+
+    keyframes slideUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    }
+
+    /* Header */
+    #ai-chat-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: #fff;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-avatar {
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #ai-chat-header button {
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.8);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.2s;
+    }
+
+        #ai-chat-header button:hover {
+            color: #fff;
+        }
+
+    /* Khu vực tin nhắn */
+    #ai-chat-messages {
+        padding: 15px;
+        flex: 1;
+        overflow-y: auto;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+        #ai-chat-messages::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        #ai-chat-messages::-webkit-scrollbar-thumb {
+            background-color: #ddd;
+            border-radius: 10px;
+        }
+
+    /* Bong bóng chat */
+    .ai-msg {
+        max-width: 80%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        font-size: 14px;
+        line-height: 1.5;
+        position: relative;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+        .ai-msg.user {
+            background: var(--msg-bg-user);
+            color: var(--text-user);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-msg.bot {
+            background: var(--msg-bg-bot);
+            color: var(--text-bot);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+    /* Khu vực nút gợi ý */
+    #ai-chat-actions {
+        padding: 10px 15px;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        background: #fff;
+        border-top: 1px solid #f5f5f5;
+        /* Ẩn thanh cuộn */
+        scrollbar-width: none;
+    }
+
+        #ai-chat-actions::-webkit-scrollbar {
+            display: none;
+        }
+
+    .ai-action-btn {
+        flex: 0 0 auto;
+        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        text-decoration: none;
+        border: 1px solid var(--primary-color);
+        background: #fff;
+        color: var(--primary-color);
+        transition: all 0.2s;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .ai-action-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+    /* Khu vực nhập liệu */
+    #ai-chat-input-area {
+        padding: 12px 15px;
+        background: #fff;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #ai-chat-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #eee;
+        border-radius: 25px;
+        font-size: 14px;
+        outline: none;
+        background: #f9f9f9;
+        transition: all 0.2s;
+    }
+
+        #ai-chat-input:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+        }
+
+    #ai-chat-send {
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+
+        #ai-chat-send:hover {
+            background: var(--primary-hover);
+        }
+</style>
+
+<script>
+    (function () {
+        const toggle   = document.getElementById('ai-chat-toggle');
+        const box      = document.getElementById('ai-chat-box');
+        const closeBtn = document.getElementById('ai-chat-close');
+        const input    = document.getElementById('ai-chat-input');
+        const sendBtn  = document.getElementById('ai-chat-send');
+        const messages = document.getElementById('ai-chat-messages');
+
+        if (!toggle || !box) return;
+
+        // 🔑 Mỗi user 1 history riêng
+        const currentUserId = '@userId';
+        const isGuest       = currentUserId === 'guest';
+        const historyKey    = isGuest ? null : 'spaChatHistory_' + currentUserId;
+        const openKey       = isGuest ? null : 'spaChatOpen_' + currentUserId;
+
+        let chatHistory = [];
+
+        // Nếu user thay đổi (A -> B / guest) thì xoá history của user cũ
+        try {
+            const lastUserId = localStorage.getItem('spaChatLastUser');
+            if (lastUserId && lastUserId !== currentUserId) {
+                localStorage.removeItem('spaChatHistory_' + lastUserId);
+                localStorage.removeItem('spaChatOpen_' + lastUserId);
+            }
+            localStorage.setItem('spaChatLastUser', currentUserId);
+        } catch (e) {
+            console.warn('Không xử lý được spaChatLastUser:', e);
+        }
+
+        function saveHistory() {
+            if (isGuest || !historyKey) return;
+            try {
+                localStorage.setItem(historyKey, JSON.stringify(chatHistory));
+            } catch (e) {
+                console.warn('Không lưu được history:', e);
+            }
+        }
+
+        function loadHistory() {
+            if (isGuest || !historyKey) return;
+
+            try {
+                const raw = localStorage.getItem(historyKey);
+                if (!raw) return;
+                chatHistory = JSON.parse(raw) || [];
+                chatHistory.forEach(m => {
+                    addMessage(m.text, m.sender, false);
+                });
+            } catch (e) {
+                console.warn('Không đọc được history:', e);
+            }
+        }
+
+        function addMessage(text, sender, save = true) {
+            const div = document.createElement('div');
+            div.classList.add('ai-msg', sender);
+            div.textContent = text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+
+            if (save && !isGuest) {
+                chatHistory.push({ sender, text });
+                saveHistory();
+            }
+        }
+
+        // Khôi phục history khi load trang
+        loadHistory();
+
+        // Khôi phục trạng thái mở/đóng cho user đã đăng nhập
+        if (!isGuest && openKey) {
+            const openState = localStorage.getItem(openKey);
+            if (openState === '1') {
+                box.style.display = 'flex';
+                toggle.style.display = 'none';
+            }
+        }
+
+        toggle.addEventListener('click', function () {
+            box.style.display = 'flex';
+            toggle.style.display = 'none';
+            if (!isGuest && openKey) {
+                localStorage.setItem(openKey, '1');
+            }
+        });
+
+        closeBtn.addEventListener('click', function () {
+            box.style.display = 'none';
+            toggle.style.display = 'flex';
+            if (!isGuest && openKey) {
+                localStorage.setItem(openKey, '0');
+            }
+        });
+
+            async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Thêm tin nhắn user
+        addMessage(text, 'user');
+        input.value = '';
+
+        // Bong bóng "Đang nghĩ..."
+        const thinkingMsg = document.createElement('div');
+        thinkingMsg.classList.add('ai-msg', 'bot');
+        thinkingMsg.textContent = 'Đang nghĩ...';
+        messages.appendChild(thinkingMsg);
+        messages.scrollTop = messages.scrollHeight;
+
+        try {
+            // 1) Gọi AI trả lời
+            const res = await fetch('/api/ChatAi/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await res.json();
+            messages.removeChild(thinkingMsg);
+
+            if (res.ok && data.success) {
+                addMessage(data.reply, 'bot');
+            } else {
+                addMessage(data.error || 'Có lỗi xảy ra, thử lại sau.', 'bot');
+            }
+
+            // 2) Gọi API resolve để thử nhận diện dịch vụ / combo
+            const resResolve = await fetch('/api/ChatAi/resolve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+
+            console.log('resolve status', resResolve.status);
+
+            if (resResolve.ok) {
+                const match = await resResolve.json();
+                console.log('resolve result', match);
+
+                if (match.found) {
+                    const actionDiv = document.createElement('div');
+                    actionDiv.classList.add('ai-msg', 'bot');
+
+                    let url = '#';
+                    if (match.type === 'dichvu') {
+                        url = '/LichHen/Create?dichVuId=' + match.id;
+                    } else if (match.type === 'combo') {
+                        url = '/KhuyenMai/DatLichKhuyenMai?id=' + match.id;
+                    }
+
+                    actionDiv.innerHTML = `
+                        Bạn muốn đặt ngay <strong>${match.name}</strong> không?
+                        <a href="${url}" class="ai-book-link">👉 Bấm vào đây để đặt lịch</a>
+                    `;
+
+                    messages.appendChild(actionDiv);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+            } else {
+                // đề phòng lỗi 404/500
+                console.warn('resolve error', await resResolve.text());
+            }
+
+        } catch (e) {
+            messages.removeChild(thinkingMsg);
+            addMessage('Lỗi kết nối server.', 'bot');
+            console.error(e);
+        }
+    }
+
+
+        sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    })();
+</script>

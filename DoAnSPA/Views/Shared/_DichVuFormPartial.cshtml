@@ -1,0 +1,26 @@
+﻿@model DoAnSPA.Models.DichVu
+
+<div class="mb-3">
+    <label class="form-label">Tên dịch vụ</label>
+    <input asp-for="TenDichVu" class="form-control" />
+    <span asp-validation-for="TenDichVu" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Mô tả</label>
+    <textarea asp-for="MoTa" class="form-control"></textarea>
+    <span asp-validation-for="MoTa" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Giá</label>
+    <input asp-for="Gia" class="form-control" />
+    <span asp-validation-for="Gia" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Hình ảnh (Chọn file hoặc nhập URL)</label>
+    <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+    <input asp-for="HinhAnh" class="form-control mt-2" placeholder="Hoặc nhập URL ảnh" />
+    <span asp-validation-for="HinhAnh" class="text-danger"></span>
+</div>

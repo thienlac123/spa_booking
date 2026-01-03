@@ -1,0 +1,55 @@
+﻿<div class="container-fluid pricing py-5" style="background: linear-gradient(135deg, #fff5f7 0%, #ffeef2 100%);">
+    <div class="container py-5">
+        <div class="section-title text-center mb-5 wow fadeInUp" data-wow-delay="0.1s"
+             style="overflow-wrap: break-word; word-break: break-word; max-width: 100%;">
+            <h1 class="display-4 mb-4" style="color: #d85a7f; max-width: 100%; white-space: normal; margin: 0 auto; display: inline-block;">
+                Combo Ưu Đãi
+            </h1>
+            <p class="mb-0" style="color: #a8818f;">Trải nghiệm dịch vụ tuyệt vời với giá ưu đãi</p>
+        </div>
+
+        <div class="owl-carousel pricing-carousel wow fadeInUp" data-wow-delay="0.3s">
+            @foreach (var combo in Model)
+            {
+                <div class="pricing-item">
+                    <div class="pricing-content rounded-4" style="box-shadow: 0 10px 30px rgba(216, 90, 127, 0.1); border: 1px solid rgba(216, 90, 127, 0.2);">
+                        <div class="d-flex align-items-start justify-content-between rounded-top-4 p-4"
+                             style="background: linear-gradient(to right, #ffd6e7, #ffc0d9); border-bottom: 2px solid #d85a7f;">
+                            <div style="flex-shrink: 0; /* max-width: 150px; đã loại bỏ */ overflow: visible;">
+                                <h1 class="display-4 mb-0" style="color: #d85a7f; font-weight: 700; white-space: normal; overflow: visible; text-overflow: unset;">
+                                    <small class="align-top" style="font-size: 22px; line-height: 45px; color: #d85a7f;">₫</small>
+                                    @combo.GiaKhuyenMai.ToString("N0")
+                                    <small class="align-bottom text-decoration-line-through"
+                                           style="font-size: 16px; color: #a8818f;">₫@((combo.GiaKhuyenMai * 1.2m).ToString("N0"))</small>
+                                </h1>
+                            </div>
+
+                            <div style="min-width: 150px; max-width: 250px; word-wrap: break-word; word-break: break-word; margin-left: 15px; overflow-wrap: break-word;">
+                                <h5 class="text-uppercase m-0" style="color: #d85a7f; font-weight: 600; white-space: normal; overflow-wrap: break-word; word-break: break-word;">
+                                    @combo.TenCombo
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="p-4" style="background: white;">
+                            <div class="mb-3">
+                                @foreach (var dv in combo.DichVus)
+                                {
+                                    <p class="mb-2" style="color: #6c757d;">
+                                        <i class="fas fa-spa me-2" style="color: #d85a7f;"></i>@dv.TenDichVu
+                                    </p>
+                                }
+                            </div>
+                            <div class="text-center mt-4">
+                                <a asp-controller="KhuyenMai" asp-action="DatLichKhuyenMai" asp-route-id="@combo.ComboDichVuId"
+                                   class="btn rounded-pill px-4 py-2"
+                                   style="background: linear-gradient(to right, #ff8fab, #d85a7f); color: white; border: none; font-weight: 500;">
+                                    <i class="far fa-calendar-check me-2"></i>Đặt Ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

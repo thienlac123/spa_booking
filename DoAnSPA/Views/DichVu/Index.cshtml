@@ -1,0 +1,121 @@
+﻿@model IEnumerable<DoAnSPA.Models.DichVu>
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@{
+    ViewData["Title"] = "Dịch Vụ Spa";
+    Layout = "_Layout";
+}
+
+<style>
+    /* CSS cho hiệu ứng hover */
+    .services-item {
+        transition: all 0.3s ease-in-out; /* Thêm hiệu ứng chuyển động mượt mà */
+        position: relative; /* Đảm bảo z-index hoạt động nếu cần */
+        overflow: hidden; /* Đảm bảo không có nội dung tràn ra ngoài khi scale */
+    }
+
+        .services-item:hover {
+            background-color: #d85a7f !important; /* Nền hồng đậm khi hover */
+            border-color: #d85a7f !important; /* Viền cũng đổi màu hồng đậm */
+            transform: translateY(-5px); /* Nâng nhẹ thẻ lên */
+            box-shadow: 0 15px 40px rgba(216, 90, 127, 0.3); /* Thêm bóng khi hover */
+        }
+
+            /* Thay đổi màu chữ và icon bên trong thẻ khi hover */
+            .services-item:hover h3,
+            .services-item:hover p,
+            .services-item:hover p.fw-bold { /* Bao gồm cả giá tiền */
+                color: white !important; /* Đổi màu chữ sang trắng */
+            }
+
+            .services-item:hover .btn {
+                background: white !important; /* Nút đổi nền trắng */
+                color: #d85a7f !important; /* Chữ nút đổi màu hồng đậm */
+                border: 1px solid #d85a7f !important; /* Viền nút đổi màu hồng đậm */
+            }
+
+            /* Đảm bảo hình ảnh không bị ảnh hưởng quá nhiều, có thể làm mờ nhẹ */
+            .services-item:hover .services-img img {
+                opacity: 0.8; /* Làm mờ nhẹ ảnh */
+                transform: scale(1.05); /* Phóng to ảnh nhẹ */
+                transition: all 0.3s ease-in-out;
+            }
+</style>
+
+<div class="container-fluid services py-5">
+    <div class="container py-5">
+        <div class="mx-auto text-center mb-5" style="max-width: 800px;">
+            <h1 class="display-3" style="color: #d85a7f;">Dịch Vụ Của Chúng Tôi</h1>
+        </div>
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-lg-6">
+                    <div class="services-item bg-light border-4 @(item.DichVuId % 2 == 0 ? "border-start" : "border-end") rounded p-4"
+                         style="border-color: #d85a7f !important;">
+                        <div class="row align-items-center">
+                            @if (item.DichVuId % 2 == 0)
+                            {
+                                <div class="col-4">
+                                    <div class="services-img d-flex align-items-center justify-content-center rounded">
+                                        <img src="@item.HinhAnh" class="img-fluid rounded" alt="@item.TenDichVu">
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <div class="services-content text-start">
+                                        <h3 style="color: #d85a7f;">@item.TenDichVu</h3>
+                                        <p style="color: #6c757d;">@item.MoTa</p>
+                                        <p class="fw-bold" style="color: #d85a7f;">Giá: @item.Gia.ToString("N0") VNĐ</p>
+
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <a href="@Url.Action("Create", "LichHen", new { dichVuId = item.DichVuId })"
+                                               class="btn rounded-pill px-4 py-2"
+                                               style="background: linear-gradient(to right, #ff8fab, #d85a7f); color: white; border: none; font-weight: 500;">Đặt Lịch</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="/Identity/Account/Login?ReturnUrl=@Url.Action("Create", "LichHen", new { dichVuId = item.DichVuId })"
+                                               class="btn btn-secondary rounded-pill px-4 py-2"
+                                               style="background-color: #a8818f; color: white; border: none; font-weight: 500;">Đặt lịch</a>
+                                        }
+
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-8">
+                                    <div class="services-content text-end">
+                                        <h3 style="color: #d85a7f;">@item.TenDichVu</h3>
+                                        <p style="color: #6c757d;">@item.MoTa</p>
+                                        <p class="fw-bold" style="color: #d85a7f;">Giá: @item.Gia.ToString("N0") VNĐ</p>
+
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <a href="@Url.Action("Create", "LichHen", new { dichVuId = item.DichVuId })"
+                                               class="btn rounded-pill px-4 py-2"
+                                               style="background: linear-gradient(to right, #ff8fab, #d85a7f); color: white; border: none; font-weight: 500;">Đặt Lịch</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="/Identity/Account/Login?ReturnUrl=@Url.Action("Create", "LichHen", new { dichVuId = item.DichVuId })"
+                                               class="btn btn-secondary rounded-pill px-4 py-2"
+                                               style="background-color: #a8818f; color: white; border: none; font-weight: 500;">Đặt lịch</a>
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="services-img d-flex align-items-center justify-content-center rounded">
+                                        <img src="@item.HinhAnh" class="img-fluid rounded" alt="@item.TenDichVu">
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

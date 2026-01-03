@@ -1,0 +1,58 @@
+﻿@model IEnumerable<DoAnSPA.Models.NhanVien>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Danh Sách Nhân Viên";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-area="Admin" asp-controller="Admin" asp-action="Staff" class="btn btn-primary">Quản lý Nhân Viên</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ảnh</th>
+            <th>Họ Tên</th>
+            <th>Quê Quán</th>
+            <th>Số Điện Thoại</th>
+            <th>Vị Trí</th>
+            <th>Mạng Xã Hội</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nv in Model)
+        {
+            <tr>
+                <td>
+                    <img src="@nv.AnhNhanVien" alt="Ảnh nhân viên" width="80" height="80" style="border-radius:50%;" />
+                </td>
+                <td>@nv.HoTen</td>
+                <td>@nv.QueQuan</td>
+                <td>@nv.SoDienThoai</td>
+                <td>@nv.ViTri</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(nv.Facebook))
+                    {
+                        <a href="@nv.Facebook" target="_blank" class="me-1"><i class="fab fa-facebook"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(nv.Instagram))
+                    {
+                        <a href="@nv.Instagram" target="_blank" class="me-1"><i class="fab fa-instagram"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(nv.Twitter))
+                    {
+                        <a href="@nv.Twitter" target="_blank" class="me-1"><i class="fab fa-twitter"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(nv.LinkedIn))
+                    {
+                        <a href="@nv.LinkedIn" target="_blank" class="me-1"><i class="fab fa-linkedin"></i></a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,114 @@
+﻿@model IEnumerable<DoAnSPA.Models.NhanVien>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Quản Lý Nhân Viên";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<!-- Form Thêm Nhân Viên -->
+<form asp-area="Admin" asp-controller="Admin" asp-action="AddStaff" method="post" enctype="multipart/form-data" class="mb-4">
+
+    <div class="mb-3">
+        <label>Họ tên</label>
+        <input type="text" name="HoTen" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Quê quán</label>
+        <input type="text" name="QueQuan" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Số điện thoại</label>
+        <input type="text" name="SoDienThoai" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Vị trí</label>
+        <input type="text" name="ViTri" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Ảnh nhân viên</label>
+        <input type="file" name="anhFile" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Facebook</label>
+        <input type="url" name="Facebook" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Instagram</label>
+        <input type="url" name="Instagram" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Twitter</label>
+        <input type="url" name="Twitter" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>LinkedIn</label>
+        <input type="url" name="LinkedIn" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Thêm Nhân Viên</button>
+</form>
+
+<!-- Danh sách Nhân Viên -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ảnh</th>
+            <th>Họ tên</th>
+            <th>Quê quán</th>
+            <th>Số điện thoại</th>
+            <th>Vị trí</th>
+            <th>Mạng xã hội</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nv in Model)
+        {
+            <tr>
+                <td>
+                    <img src="@nv.AnhNhanVien" alt="Ảnh nhân viên" width="80" height="80" style="border-radius:50%;" />
+                </td>
+                <td>@nv.HoTen</td>
+                <td>@nv.QueQuan</td>
+                <td>@nv.SoDienThoai</td>
+                <td>@nv.ViTri</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(nv.Facebook))
+                    {
+                        <a href="@nv.Facebook" target="_blank" class="me-1"><i class="fab fa-facebook"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(nv.Instagram))
+                    {
+                        <a href="@nv.Instagram" target="_blank" class="me-1"><i class="fab fa-instagram"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(nv.Twitter))
+                    {
+                        <a href="@nv.Twitter" target="_blank" class="me-1"><i class="fab fa-twitter"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(nv.LinkedIn))
+                    {
+                        <a href="@nv.LinkedIn" target="_blank" class="me-1"><i class="fab fa-linkedin"></i></a>
+                    }
+                </td>
+                <td>
+                    <a asp-area="Admin" asp-controller="Admin" asp-action="EditStaff" asp-route-id="@nv.Id" class="btn btn-warning btn-sm">Sửa</a>
+                    <form asp-area="Admin" asp-controller="Admin" asp-action="DeleteStaff" asp-route-id="@nv.Id" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa nhân viên này không?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,140 @@
+﻿@model IEnumerable<DoAnSPA.Models.SanPham>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    string VND(decimal x) => x.ToString("#,0") + " đ";
+
+    var categories        = ViewBag.Categories as List<string> ?? new List<string>();
+    string currentSearch  = ViewBag.Search as string;
+    string currentCategory = ViewBag.Category as string;
+}
+
+<h2 class="mb-3">Quản lý sản phẩm</h2>
+
+@if (TempData["Success"] is string sMsg)
+{
+    <div class="alert alert-success">@sMsg</div>
+}
+
+<div class="d-flex justify-content-between align-items-end mb-3">
+    <!-- 🔍 TÌM KIẾM + LỌC LOẠI -->
+    <form asp-controller="Admin" asp-action="SanPham" method="get" class="row g-2">
+        <div class="col-auto">
+            <input type="text"
+                   name="search"
+                   value="@currentSearch"
+                   class="form-control form-control-sm"
+                   placeholder="Tìm theo tên, mô tả..." />
+        </div>
+        <div class="col-auto">
+            <select name="category" class="form-select form-select-sm">
+                <option value="">Tất cả loại</option>
+                @foreach (var cat in categories)
+                {
+                    <option value="@cat" selected="@(cat == currentCategory)">
+                        @cat
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary">
+                <i class="fas fa-search me-1"></i>Lọc
+            </button>
+        </div>
+    </form>
+
+    <!-- Nút thêm sản phẩm -->
+    <a asp-controller="Admin" asp-action="SanPhamCreate" class="btn btn-success btn-sm">
+        + Thêm Sản Phẩm
+    </a>
+</div>
+
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th style="width:60px;">ID</th>
+            <th>Tên sản phẩm</th>
+            <th style="width:160px;">Loại</th>
+            <th class="text-end" style="width:130px;">Giá</th>
+            <th style="width:110px;">Trạng thái</th>
+            <th style="width:220px;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    Không có sản phẩm nào.
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var sp in Model)
+            {
+                <tr>
+                    <td class="text-center fw-bold">@sp.SanPhamId</td>
+                    <td>
+                        <strong>@sp.TenSanPham</strong><br />
+                        <small class="text-muted">@sp.MoTa</small>
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(sp.LoaiSanPham))
+                        {
+                            <span class="badge bg-info text-dark">@sp.LoaiSanPham</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+                    <td class="text-end">@VND(sp.Gia)</td>
+                    <td>
+                        @if (sp.IsActive)
+                        {
+                            <span class="badge bg-success">Đang bán</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Ẩn</span>
+                        }
+                    </td>
+                    <td>
+                        <form asp-controller="Admin"
+                              asp-action="SanPhamToggle"
+                              asp-route-id="@sp.SanPhamId"
+                              method="post"
+                              class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-warning">
+                                @(sp.IsActive ? "Ẩn" : "Hiện")
+                            </button>
+                        </form>
+
+                        <a asp-controller="Admin"
+                           asp-action="SanPhamEdit"
+                           asp-route-id="@sp.SanPhamId"
+                           class="btn btn-warning btn-sm">
+                            Sửa
+                        </a>
+
+                        <form asp-controller="Admin"
+                              asp-action="SanPhamDeleteConfirmed"
+                              asp-route-id="@sp.SanPhamId"
+                              method="post"
+                              class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                                Xóa
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

@@ -1,0 +1,284 @@
+﻿@model DoAnSPA.Models.TrangChuViewModel
+
+@{
+    ViewData["Title"] = "Trang chủ - Nơi vẻ đẹp thăng hoa";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<div class="container-fluid p-0 mb-5">
+    <div id="header-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @foreach (var (dv, index) in Model.DichVus.Select((value, i) => (value, i)))
+            {
+                <div class="carousel-item @(index == 0 ? "active" : "")" data-bs-interval="5000">
+                    <div class="hero-wrapper position-relative">
+                        <img class="w-100 hero-img" src="@dv.HinhAnh" alt="@dv.TenDichVu">
+                        <div class="hero-overlay"></div>
+
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center h-100">
+                            <div class="p-3 text-center" style="max-width: 900px;">
+                                <h5 class="text-uppercase text-primary mb-3 ls-3 animate__animated animate__fadeInDown">Spa & Beauty Center</h5>
+                                <h1 class="display-3 text-white mb-4 fw-bold font-heading animate__animated animate__fadeInUp">@dv.TenDichVu</h1>
+                                <p class="fs-5 text-white-50 mb-5 d-none d-md-block w-75 mx-auto animate__animated animate__fadeInUp animate__delay-1s">
+                                    @dv.MoTa
+                                </p>
+                                <a asp-controller="LichHen" asp-action="Create" asp-route-dichVuId="@dv.DichVuId"
+                                   class="btn btn-primary py-3 px-5 rounded-pill fw-bold animate__animated animate__zoomIn animate__delay-1s shadow-lg">
+                                    Đặt Lịch Ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#header-carousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#header-carousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="position-relative ps-5 pt-5">
+                    <img src="https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&q=80&w=600" class="img-fluid rounded shadow w-100" style="object-fit: cover; height: 400px;" alt="About Spa">
+                    <div class="position-absolute top-0 start-0 bg-white rounded shadow p-4" style="max-width: 200px;">
+                        <h2 class="text-primary fw-bold mb-0">10+</h2>
+                        <p class="text-muted mb-0">Năm kinh nghiệm</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <h6 class="text-primary text-uppercase ls-3 mb-2">Về Chúng Tôi</h6>
+                <h2 class="font-heading mb-4 display-6 fw-bold">Trải nghiệm thư giãn tuyệt đối</h2>
+                <p class="text-muted mb-4">Chúng tôi mang đến không gian yên bình và các liệu trình chăm sóc sức khỏe, sắc đẹp hàng đầu. Đội ngũ chuyên gia tận tâm sẽ giúp bạn tái tạo năng lượng sau những ngày làm việc căng thẳng.</p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa fa-check text-primary me-2"></i>
+                            <span class="text-secondary">Sản phẩm hữu cơ</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa fa-check text-primary me-2"></i>
+                            <span class="text-secondary">Chuyên gia hàng đầu</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid bg-light py-5">
+    <div class="container py-5">
+        <div class="text-center mx-auto mb-5" style="max-width: 600px;">
+            <p class="d-inline-block text-primary fw-bold border-bottom border-primary border-2 pb-1">ĐỘI NGŨ</p>
+            <h2 class="font-heading fw-bold display-6">Chuyên Gia Của Chúng Tôi</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            @foreach (var nv in Model.NhanViens)
+            {
+                <div class="col-lg-3 col-md-6">
+                    <div class="team-card bg-white rounded shadow-sm overflow-hidden h-100 position-relative text-center p-4 transition-hover">
+                        <div class="team-img-wrapper position-relative mx-auto mb-4">
+                            <img class="img-fluid rounded-circle object-fit-cover shadow" src="@nv.AnhNhanVien" alt="@nv.HoTen" style="width: 150px; height: 150px;">
+                        </div>
+                        <h5 class="fw-bold font-heading mb-1">@nv.HoTen</h5>
+                        <p class="text-primary small text-uppercase mb-3">@nv.ViTri</p>
+
+                        <div class="team-social d-flex justify-content-center gap-2 mt-3">
+                            <a class="btn btn-sm btn-light text-primary rounded-circle shadow-sm" href="@nv.Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-sm btn-light text-primary rounded-circle shadow-sm" href="@nv.Instagram"><i class="fab fa-instagram"></i></a>
+                            <a class="btn btn-sm btn-light text-primary rounded-circle shadow-sm" href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row g-0 rounded overflow-hidden shadow-lg">
+            <div class="col-lg-5 bg-dark text-white p-5 d-flex flex-column justify-content-center position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10" style="background: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+
+                <div class="position-relative z-1">
+                    <h3 class="font-heading fw-bold mb-4 text-white">Liên Hệ Đặt Lịch</h3>
+                    <p class="mb-4 text-white-50">Hãy để lại thông tin hoặc liên hệ trực tiếp để được tư vấn gói dịch vụ phù hợp nhất.</p>
+
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="btn-icon bg-primary text-white rounded-circle me-3">
+                            <i class="fa fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 text-white">Địa chỉ</h6>
+                            <small class="text-white-50">Căn Hộ Bcons Polaris An Bình - TP.Dĩ An - Liền Kề Thủ Đức</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="btn-icon bg-primary text-white rounded-circle me-3">
+                            <i class="fa fa-phone-alt"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 text-white">Hotline</h6>
+                            <small class="text-white-50">1900 123 456</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="btn-icon bg-primary text-white rounded-circle me-3">
+                            <i class="fa fa-envelope-open"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 text-white">Email</h6>
+                            <small class="text-white-50">booking@spabeauty.com</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="h-100">
+                    <iframe class="w-100 h-100" style="min-height: 450px; border:0;"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.420663762876!2d106.74966631480138!3d10.855584992267858!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752797e321f8e9%3A0xb3ff69197b10ec4f!2sChung%20c%C6%B0%20Bcons%20Polaris!5e0!3m2!1svi!2s!4v1684829283921!5m2!1svi!2s"
+                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* --- CẤU HÌNH MÀU SẮC --- */
+    :root {
+        --bs-primary: #D85A7F;
+        --bs-primary-rgb: 216, 90, 127;
+        --bs-secondary: #6c757d;
+        --bs-dark: #333333;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: #555;
+    }
+
+    .font-heading {
+        font-family: 'Playfair Display', serif;
+    }
+
+    .text-primary {
+        color: var(--bs-primary) !important;
+    }
+
+    .bg-primary {
+        background-color: var(--bs-primary) !important;
+    }
+
+    .ls-3 {
+        letter-spacing: 3px;
+    }
+
+    /* --- BUTTONS --- */
+    .btn-primary {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #c0456b;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(216, 90, 127, 0.4);
+        }
+
+    /* --- HERO --- */
+    .hero-wrapper {
+        height: 85vh;
+        min-height: 600px;
+    }
+
+    .hero-img {
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6));
+    }
+
+    .carousel-caption {
+        bottom: 0;
+        top: 0;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* --- TEAM --- */
+    .team-card {
+        border-bottom: 3px solid transparent;
+        transition: all 0.4s ease;
+    }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            border-bottom-color: var(--bs-primary);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        }
+
+    .team-social a {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+        .team-social a:hover {
+            background: var(--bs-primary) !important;
+            color: white !important;
+        }
+
+    /* --- ICONS --- */
+    .btn-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    /* --- RESPONSIVE --- */
+    @@media (max-width: 768px) {
+        .hero-wrapper {
+            height: 60vh;
+            min-height: 400px;
+        }
+
+        .display-3 {
+            font-size: 2.5rem;
+        }
+
+        .hero-overlay {
+            background: rgba(0,0,0,0.5);
+        }
+    }
+</style>

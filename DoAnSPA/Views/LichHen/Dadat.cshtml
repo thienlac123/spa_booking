@@ -1,0 +1,269 @@
+﻿@model List<DoAnSPA.Models.LichHen>
+
+@{
+    ViewData["Title"] = "Lịch Hẹn Đã Đặt";
+
+    string VND(decimal? x)
+        => (x ?? 0) > 0
+            ? (x ?? 0).ToString("#,0", new System.Globalization.CultureInfo("vi-VN")) + "đ"
+            : "";
+}
+
+<style>
+    .badge-pink {
+        background: #e85d8f;
+        color: #fff;
+    }
+
+    .text-muted-sm {
+        font-size: .85rem;
+        color: #6c757d;
+    }
+</style>
+
+<h2 class="text-center mt-4">📄 Lịch Hẹn Của Bạn</h2>
+
+<p class="text-center text-muted-sm mb-3">
+    * Một số lịch có đặt cọc qua MetaMask. Bạn có thể hủy & nhận lại cọc trước giờ hẹn 2 giờ.
+</p>
+
+@if (TempData["AlertMsg"] != null)
+{
+    var lvl = (TempData["AlertLevel"] as string) ?? "info";
+    <input type="hidden" id="alert-msg" value="@TempData["AlertMsg"]" />
+    <input type="hidden" id="alert-type" value="@lvl" />
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info text-center mt-4">
+        Bạn chưa có lịch hẹn nào.
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th class="text-start">Dịch vụ / Combo</th>
+                        <th>Nhân viên</th>
+                        <th>Ngày hẹn</th>
+                        <th>Giờ hẹn</th>
+                        <th class="text-start">Ghi chú</th>
+                        <th style="width: 220px;">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lh in Model)
+                    {
+                        <tr>
+                            <!-- Dịch vụ / Combo -->
+                            <td class="text-start">
+                                @if (lh.comboId.HasValue)
+                                {
+                                    <span class="badge badge-pink">Combo</span>
+                                    <strong class="ms-1">
+                                        @(lh.ComboDichVu?.TenCombo ?? $"Combo #{lh.comboId}")
+                                    </strong>
+                                    <div class="text-muted-sm">
+                                        @VND(lh.ComboDichVu?.GiaKhuyenMai)
+                                    </div>
+                                }
+                                else if (lh.dichVuId.HasValue)
+                                {
+                                    <strong>
+                                        @(lh.DichVu?.TenDichVu ?? $"Dịch vụ #{lh.dichVuId}")
+                                    </strong>
+                                    <div class="text-muted-sm">
+                                        @VND(lh.DichVu?.Gia)
+                                    </div>
+                                }
+                                else
+                                {
+                                    <em>(không xác định)</em>
+                                }
+                            </td>
+
+                            <!-- Nhân viên -->
+                            <td>@(lh.NhanVien?.HoTen ?? "Chưa chọn")</td>
+
+                            <!-- Ngày / giờ -->
+                            <td>@lh.ngayHen.ToString("dd/MM/yyyy")</td>
+                            <td>@lh.gioHen.ToString(@"hh\:mm")</td>
+
+                            <!-- Ghi chú -->
+                            <td class="text-start">@lh.ghiChu</td>
+
+                            <!-- Trạng thái + nút hủy -->
+                            
+                            <td class="text-start">
+                                @switch (lh.trangThai)
+                                {
+                                    case "ChoXacNhan":
+                                        <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                        <div class="text-muted-sm">Spa sẽ liên hệ để xác nhận lịch.</div>
+                ;
+                                        break;
+
+                                    case "DaCoc":
+                                        <span class="badge badge-pink">Đã cọc</span>
+                                        <div class="text-muted-sm">Bạn đã cọc qua MetaMask, chờ Spa xử lý.</div>
+                ;
+                                        break;
+
+                                    case "HoanThanh":
+                                        <span class="badge bg-success">Hoàn thành</span>
+                                        <div class="text-muted-sm">Dịch vụ đã hoàn tất.</div>
+                ;
+                                        break;
+
+                                    case "DaHuy":
+                                        if (lh.LyDoHuy == "SpaHuy")
+                                        {
+                                            <span class="badge bg-secondary">Đã hủy (Spa)</span>
+                                            <div class="text-muted-sm">
+                                                Spa đã chủ động hủy lịch. Tiền cọc đã hoàn về ví MetaMask của bạn.
+                                            </div>
+                                        }
+                                        else    // KhachHuy hoặc null
+                                        {
+                                            <span class="badge bg-secondary">Bạn đã hủy</span>
+                                            <div class="text-muted-sm">
+                                                Bạn đã hủy lịch & nhận lại tiền cọc qua MetaMask.
+                                            </div>
+                                        }
+                                                        ;
+                                        break;
+
+                                    case "DaPhat":
+                                        <span class="badge bg-dark">Đã phạt</span>
+                                        <div class="text-muted-sm">
+                                            Bạn không đến đúng giờ, Spa giữ lại tiền cọc theo chính sách.
+                                        </div>
+                ;
+                                        break;
+
+                                   
+                                }
+
+                                @* Chỉ hiển thị nút hủy khi đang Đã cọc *@
+                                @if (lh.trangThai == "DaCoc")
+                                {
+                                    if (!string.IsNullOrEmpty(lh.BlockchainId))
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger mt-1"
+                                                onclick="cancelByClient(@lh.lichHenId, '@lh.BlockchainId')">
+                                            Hủy lịch & nhận lại cọc
+                                        </button>
+                                        <div class="text-muted-sm">
+                                            Chỉ hủy được trước giờ hẹn 2 giờ.
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <form method="post"
+                                              asp-action="CancelNoWeb3"
+                                              asp-controller="LichHen"
+                                              class="mt-2">
+                                            <input type="hidden" name="id" value="@lh.lichHenId" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                Hủy lịch
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js"></script>
+    <script>
+        // 1. Kết nối MetaMask + lấy contract
+        async function getContract() {
+            if (!window.ethereum) {
+                alert('Cần cài MetaMask để thao tác hủy & hoàn cọc.');
+                throw new Error('No MetaMask');
+            }
+
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = await provider.getSigner();
+
+            const addrRes = await fetch('/js/blockchain/localhost.json');
+            const addrJson = await addrRes.json();
+            const contractAddress = addrJson.BookingEscrow;
+
+            const abiRes = await fetch('/js/blockchain/BookingEscrow.json');
+            const abiJson = await abiRes.json();
+
+            return new ethers.Contract(contractAddress, abiJson.abi, signer);
+        }
+
+        // 2. Chuẩn hóa bookingId thành bytes32
+        function toBytes32(hex) {
+            if (!hex) return "0x" + "0".repeat(64);
+            return hex.startsWith("0x") ? hex : "0x" + hex;
+        }
+
+        // 3. Gọi server cập nhật trạng thái sau khi hủy (API KHÁCH HÀNG)
+        async function notifyServerAfterCancel(lichHenId, txHash) {
+            const res = await fetch('/LichHen/MarkClientCancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: lichHenId,
+                    status: 'Refunded',   // KH hủy ⇒ Refunded
+                    tx: txHash
+                })
+            });
+
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error("Lỗi server: " + txt);
+            }
+        }
+
+        // 4. HÀM KHÁCH HÀNG HỦY LỊCH & NHẬN LẠI CỌC (dùng cho từng dòng)
+        async function cancelByClient(lichHenId, bookingHex) {
+            if (!bookingHex) {
+                alert("Lịch hẹn này chưa có ID trên Blockchain nên không thể hủy qua MetaMask.");
+                return;
+            }
+
+            if (!confirm("Bạn chắc chắn muốn hủy lịch và nhận lại tiền cọc?")) return;
+
+            try {
+                const c = await getContract();
+                const tx = await c.cancelByClient(toBytes32(bookingHex));
+                alert("Đang gửi giao dịch hủy lên Blockchain, vui lòng đợi...");
+                const receipt = await tx.wait();
+
+                // Cập nhật DB
+                await notifyServerAfterCancel(lichHenId, receipt.hash);
+
+                // Thông báo + reload danh sách
+                alert("Hủy lịch & hoàn cọc thành công! Vui lòng kiểm tra số dư ví MetaMask.");
+                window.location.reload();
+            } catch (e) {
+                console.error(e);
+                let msg = e?.reason || e?.message || e;
+
+                if (msg.includes("bad status")) {
+                    alert("Lịch này đã được xử lý trên Blockchain (bad status). Có thể đã hủy/hoàn trước đó.");
+                } else {
+                    alert("Lỗi khi hủy: " + msg);
+                }
+            }
+        }
+    </script>
+
+
+}

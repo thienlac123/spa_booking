@@ -1,0 +1,112 @@
+﻿@model DoAnSPA.Models.LienHe
+
+@{
+    ViewData["Title"] = "Liên Hệ";
+}
+
+<div class="container-fluid contact py-5" style="background: linear-gradient(135deg, #fff5f7 0%, #ffeef2 100%);">
+    <div class="container pt-5">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <div class="text-center">
+
+                    <h1 class="display-3 mb-4" style="color: #d85a7f;">Liên Hệ Chúng Tôi</h1>
+
+                    <p class="fs-4" style="color: #a8818f;">Hãy gửi tin nhắn cho chúng tôi nếu bạn có bất kỳ câu hỏi nào. Chúng tôi sẽ phản hồi trong thời gian sớm nhất.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="contact-form rounded p-5 bg-white" style="box-shadow: 0 10px 30px rgba(216, 90, 127, 0.1);">
+                    <h1 class="display-6 mb-4 text-center" style="color: #d85a7f;">Bạn có câu hỏi nào không?</h1>
+
+                    @if (ViewBag.Message != null)
+                    {
+                        <div class="alert alert-success">@ViewBag.Message</div>
+                    }
+
+                    <form asp-action="Index" method="post">
+                        <div class="row gx-4 gy-3">
+                            <div class="col-xl-6">
+                                <input asp-for="HoTen" type="text" class="form-control bg-white border py-3 px-4" placeholder="Họ và Tên" required style="border-color: rgba(216, 90, 127, 0.2) !important;"> 
+                            </div>
+                            <div class="col-xl-6">
+                                <input asp-for="Email" type="email" class="form-control bg-white border py-3 px-4" placeholder="Email" required style="border-color: rgba(216, 90, 127, 0.2) !important;">
+                            </div>
+                            <div class="col-xl-6">
+                                <input asp-for="SoDienThoai" type="text" class="form-control bg-white border py-3 px-4" placeholder="Số Điện Thoại" required style="border-color: rgba(216, 90, 127, 0.2) !important;">
+                            </div>
+                            <div class="col-xl-6">
+                                <input asp-for="ChuDe" type="text" class="form-control bg-white border py-3 px-4" placeholder="Chủ Đề" style="border-color: rgba(216, 90, 127, 0.2) !important;">
+                            </div>
+                            <div class="col-12">
+                                <textarea asp-for="NoiDung" class="form-control bg-white border py-3 px-4" rows="4" placeholder="Nội dung liên hệ" required style="border-color: rgba(216, 90, 127, 0.2) !important;"></textarea>
+                            </div>
+                            <div class="col-12 text-center">
+                                <button class="btn w-100 py-3 px-5" type="submit" style="background: linear-gradient(to right, #ff8fab, #d85a7f); color: white; border: none; font-weight: 500;">Gửi Ngay</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pb-5">
+    <div class="container py-5">
+        <div class="row g-4 align-items-center">
+            <div class="col-12">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="d-inline-flex bg-light w-100 border p-4 rounded" style="border-color: rgba(216, 90, 127, 0.5) !important;">
+                            <i class="fas fa-map-marker-alt fa-2x me-4" style="color: #d85a7f;"></i>
+                            <div>
+                                <h4 style="color: #d85a7f;">Địa Chỉ</h4>
+                                <p class="mb-0" style="color: #6c757d;">Đại học Hutech 475A, Điện Biên Phủ, phường 25, quận Bình Thạnh, TP.HCM</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-inline-flex bg-light w-100 border p-4 rounded" style="border-color: rgba(216, 90, 127, 0.5) !important;">
+                            <i class="fas fa-envelope fa-2x me-4" style="color: #d85a7f;"></i>
+                            <div>
+                                <h4 style="color: #d85a7f;">Email</h4>
+                                <p class="mb-0" style="color: #6c757d;">yukinochan2909@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-inline-flex bg-light w-100 border p-4 rounded" style="border-color: rgba(216, 90, 127, 0.5) !important;">
+                            <i class="fa fa-phone-alt fa-2x me-4" style="color: #d85a7f;"></i>
+                            <div>
+                                <h4 style="color: #d85a7f;">Điện Thoại</h4>
+                                <p class="mb-0" style="color: #6c757d;">(+84) 853555443</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="rounded">
+                   
+                    <iframe class="rounded-top w-100"
+                            style="height: 450px; margin-bottom: -6px;"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7838.386719791079!2d106.71453459988449!3d10.796497771976897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528a459cb43ab%3A0x6c3d29d370b52a7e!2zSFVURUNIIC0gxJDhuqFpIGjhu41jIEPDtG5nIG5naOG7hyBUUC5IQ00gKFNhaSBHb24gQ2FtcHVzKQ!5e0!3m2!1svi!2s!4v1743238748681!5m2!1svi!2s"
+                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+               
+                <div class="text-center p-4 rounded-bottom" style="background: linear-gradient(to right, #ff8fab, #d85a7f);">
+                    <h4 class="text-white fw-bold">Theo Dõi Chúng Tôi</h4>
+                    <div class="d-flex align-items-center justify-content-center">
+                        <a href="#" class="btn btn-light btn-square rounded-circle me-3"><i class="fab fa-facebook-f" style="color: #d85a7f;"></i></a>
+                        <a href="#" class="btn btn-light btn-square rounded-circle me-3"><i class="fab fa-twitter" style="color: #d85a7f;"></i></a>
+                        <a href="#" class="btn btn-light btn-square rounded-circle me-3"><i class="fab fa-instagram" style="color: #d85a7f;"></i></a>
+                        <a href="#" class="btn btn-light btn-square rounded-circle"><i class="fab fa-linkedin-in" style="color: #d85a7f;"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using DoAnSPA.Models
+
+@inject SignInManager<SpaUser> SignInManager
+@inject UserManager<SpaUser> UserManager
+
+<ul class="navbar-nav ms-auto">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var user = await UserManager.GetUserAsync(User);
+        var displayName = user?.FullName ?? User.Identity?.Name;
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle me-1 text-primary"></i> Xin chào, @displayName
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
+                <li>
+                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                        <i class="fas fa-id-card me-2 text-secondary"></i> Hồ sơ cá nhân
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="GioHang" asp-action="Index">
+                        <i class="fas fa-shopping-cart me-2 text-warning"></i> Giỏ hàng
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="GioHang" asp-action="DonHangCuaToi">
+                        <i class="fas fa-box-open me-2 text-warning"></i> Đơn hàng của tôi
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item" asp-controller="LichHen" asp-action="DaDat">
+                        <i class="fas fa-calendar-check me-2 text-warning"></i> Lịch hẹn đã đặt
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li>
+                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark fw-semibold" asp-area="Identity" asp-page="/Account/Register">
+                <i class="fas fa-user-plus me-1"></i> Đăng ký
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link btn btn-primary text-white ms-2 px-4 rounded-pill" asp-area="Identity" asp-page="/Account/Login">
+                Đăng nhập
+            </a>
+        </li>
+    }
+</ul>

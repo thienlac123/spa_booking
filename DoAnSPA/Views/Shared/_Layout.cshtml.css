@@ -1,0 +1,60 @@
+﻿/* Footer */
+.footer {
+    background-color: #3a2e26; /* Màu nâu đậm sang trọng */
+    color: #e0d5cc; /* Màu chữ nhạt */
+}
+
+    .footer h4 {
+        color: #d4b196; /* Màu tiêu đề be nhạt */
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+        .footer h4::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 50px;
+            height: 2px;
+            background: #d4b196; /* Màu gạch chân */
+        }
+
+    .footer a {
+        color: #c0b3a8; /* Màu link nhạt */
+        text-decoration: none;
+        transition: all 0.3s;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+        .footer a:hover {
+            color: #d4b196; /* Màu khi hover */
+            padding-left: 5px;
+        }
+
+    .footer .text-muted {
+        color: #b8aca2 !important; /* Màu cho text nhạt */
+    }
+
+    .footer .text-white {
+        color: #e0d5cc !important; /* Đè lên màu trắng thành màu be */
+    }
+
+    .footer i {
+        color: #d4b196; /* Màu icon */
+    }
+
+/* Copyright */
+.copyright {
+    background-color: #2a211b; /* Màu nền đậm hơn footer */
+    color: #d4b196 !important; /* Màu chữ */
+}
+
+    .copyright a {
+        color: #e0d5cc !important; /* Màu link */
+    }
+
+        .copyright a:hover {
+            color: #d4b196 !important; /* Màu khi hover */
+        }
