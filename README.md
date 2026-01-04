@@ -12,7 +12,6 @@ Hệ thống quản lý & đặt lịch Spa (đồ án chuyên ngành) giúp kh�
 - **Tools:** Visual Studio 2022, Postman, Git/GitHub
 - **Authentication/Authorization:** ASP.NET Core Identity (Role-based)
   
-
 ## Main Features
 - Xem danh sách dịch vụ / sản phẩm, thông tin spa
 - Đặt lịch hẹn theo ngày/giờ, quản lý lịch hẹn
